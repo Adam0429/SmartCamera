@@ -1,0 +1,2 @@
+# SmartCemera
+Android project
