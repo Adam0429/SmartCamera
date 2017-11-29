@@ -1,3 +1,4 @@
+package api;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -13,21 +14,26 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import javax.net.ssl.SSLException;
-public class FaceTest {
+public class detect {
 	
-	public static void main(String[] args) throws Exception{
-		
-        File file = new File("C:/Users/wfh/Desktop/2.jpg");
-		byte[] buff = getBytesFromFile(file);
-		String url = "https://api-cn.faceplusplus.com/facepp/v3/face/analyze";
+	
+	private final static int CONNECT_TIME_OUT = 30000;
+    private final static int READ_OUT_TIME = 50000;
+    private static String boundaryString = getBoundary();
+    String filepath = "";
+    public detect(String fString){
+    	filepath = fString;
+    }
+    public String run(){
+        File file = new File(filepath);
+    	byte[] buff = getBytesFromFile(file);
+		String url = "https://api-cn.faceplusplus.com/facepp/v3/detect";
 		//https://api-cn.faceplusplus.com/facepp/v3/detect
 		//https://api-cn.faceplusplus.com/facepp/v3/face/analyze
-        HashMap<String, String> map = new HashMap<>();
-        HashMap<String, byte[]> byteMap = new HashMap<>();
+		HashMap<String, String> map = new HashMap<String , String>();
+	    HashMap<String, byte[]> byteMap = new HashMap<String , byte[]>();
         map.put("api_key", "eOUwQEVvjcuhoQED7awCxZYo9bfIJuUc");
         map.put("api_secret", "XRUTL9spg4O1fuolzOqcbtj8OzTqXHwT");
-        map.put("return_attributes", "gender,age,smiling,headpose");
-        map.put("face_tokens", "3a0651f860760c39dd1b84f4cde11d09");
 
         /*如果您使用API将face_token存入FaceSet，系统将为您存储face_token对应的人脸特征信息。如果face_token超过72小时没有存放在任何FaceSet中，则会被系统清除。使用Face存储需要以下几个步骤：
 		对图片进行人脸检测，使用Detect API获得face_token。
@@ -35,18 +41,16 @@ public class FaceTest {
 		将face_token存入FaceSet，使用FaceSet Addface API。（注：2和3可以合并成一个步骤）*/
         byteMap.put("image_file", buff);
         try{
-            byte[] bacd = post(url, map );
+            byte[] bacd = post(url, map, byteMap);
             String str = new String(bacd);
-            System.out.println(str);
-        }catch (Exception e) {
+            return str;
+		}catch (Exception e) {
         	e.printStackTrace();
 		}
-	}
-	
-	private final static int CONNECT_TIME_OUT = 30000;
-    private final static int READ_OUT_TIME = 50000;
-    private static String boundaryString = getBoundary();
-    protected static byte[] post(String url, HashMap<String, String> map) throws Exception {
+        return null;
+    }
+    
+    protected static byte[] post(String url, HashMap<String, String> map, HashMap<String, byte[]> fileMap) throws Exception {
         HttpURLConnection conne;
         URL url1 = new URL(url);
         conne = (HttpURLConnection) url1.openConnection();
@@ -71,7 +75,18 @@ public class FaceTest {
             obos.writeBytes("\r\n");
             obos.writeBytes(value + "\r\n");
         }
-      
+        if(fileMap != null && fileMap.size() > 0){
+            Iterator fileIter = fileMap.entrySet().iterator();
+            while(fileIter.hasNext()){
+                Map.Entry<String, byte[]> fileEntry = (Map.Entry<String, byte[]>) fileIter.next();
+                obos.writeBytes("--" + boundaryString + "\r\n");
+                obos.writeBytes("Content-Disposition: form-data; name=\"" + fileEntry.getKey()
+                        + "\"; filename=\"" + encode(" ") + "\"\r\n");
+                obos.writeBytes("\r\n");
+                obos.write(fileEntry.getValue());
+                obos.writeBytes("\r\n");
+            }
+        }
         obos.writeBytes("--" + boundaryString + "--" + "\r\n");
         obos.writeBytes("\r\n");
         obos.flush();
