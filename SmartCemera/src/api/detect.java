@@ -20,34 +20,32 @@ public class detect {
 	private final static int CONNECT_TIME_OUT = 30000;
     private final static int READ_OUT_TIME = 50000;
     private static String boundaryString = getBoundary();
-    String filepath = "";
+    String base64 = "";
     public detect(String fString){
-    	filepath = fString;
+    	base64 = fString;
     }
     public String run(){
-        File file = new File(filepath);
-    	byte[] buff = getBytesFromFile(file);
 		String url = "https://api-cn.faceplusplus.com/facepp/v3/detect";
 		//https://api-cn.faceplusplus.com/facepp/v3/detect
 		//https://api-cn.faceplusplus.com/facepp/v3/face/analyze
 		HashMap<String, String> map = new HashMap<String , String>();
-	    HashMap<String, byte[]> byteMap = new HashMap<String , byte[]>();
+	  
         map.put("api_key", "eOUwQEVvjcuhoQED7awCxZYo9bfIJuUc");
         map.put("api_secret", "XRUTL9spg4O1fuolzOqcbtj8OzTqXHwT");
-
+        map.put("image_base64", base64);
         /*如果您使用API将face_token存入FaceSet，系统将为您存储face_token对应的人脸特征信息。如果face_token超过72小时没有存放在任何FaceSet中，则会被系统清除。使用Face存储需要以下几个步骤：
 		对图片进行人脸检测，使用Detect API获得face_token。
 		创建FaceSet，使用FaceSet Create API。
 		将face_token存入FaceSet，使用FaceSet Addface API。（注：2和3可以合并成一个步骤）*/
-        byteMap.put("image_file", buff);
+        
         try{
-            byte[] bacd = post(url, map, byteMap);
+            byte[] bacd = post(url, map, null);
             String str = new String(bacd);
             return str;
 		}catch (Exception e) {
-        	e.printStackTrace();
+			e.printStackTrace();
 		}
-        return null;
+        return "1221";
     }
     
     protected static byte[] post(String url, HashMap<String, String> map, HashMap<String, byte[]> fileMap) throws Exception {
