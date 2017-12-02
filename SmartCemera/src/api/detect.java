@@ -45,7 +45,7 @@ public class detect {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-        return "1221";
+        return "api³ö´í";
     }
     
     protected static byte[] post(String url, HashMap<String, String> map, HashMap<String, byte[]> fileMap) throws Exception {

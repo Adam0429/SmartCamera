@@ -15,8 +15,11 @@ import java.util.Map;
 import java.util.Random;
 import javax.net.ssl.SSLException;
 public class analyze {
-	
-	public static void main(String[] args) throws Exception{
+	String token = null;
+	public analyze(String t){
+		token = t;
+	}
+	public String run(){
 		
 
 		String url = "https://api-cn.faceplusplus.com/facepp/v3/face/analyze";
@@ -25,8 +28,8 @@ public class analyze {
         HashMap<String, String> map = new HashMap<String , String>();
         map.put("api_key", "eOUwQEVvjcuhoQED7awCxZYo9bfIJuUc");
         map.put("api_secret", "XRUTL9spg4O1fuolzOqcbtj8OzTqXHwT");
-        map.put("return_attributes", "gender,age,smiling,headpose");
-        map.put("face_tokens", "3a0651f860760c39dd1b84f4cde11d09");
+        map.put("return_attributes", "gender,age,smiling,emotion,ethnicity,beauty");
+        map.put("face_tokens", token);
 
         /*如果您使用API将face_token存入FaceSet，系统将为您存储face_token对应的人脸特征信息。如果face_token超过72小时没有存放在任何FaceSet中，则会被系统清除。使用Face存储需要以下几个步骤：
 		对图片进行人脸检测，使用Detect API获得face_token。
@@ -35,9 +38,9 @@ public class analyze {
         try{
             byte[] bacd = post(url, map);
             String str = new String(bacd);
-            System.out.println(str);
+            return str;
         }catch (Exception e) {
-        	e.printStackTrace();
+        	return "Analyze出错";
 		}
 	}
 	
