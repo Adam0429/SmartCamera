@@ -49,6 +49,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback, C
 	        // 确保在缩放或重排时停止预览  
 	        if (mHolder.getSurface() == null){   
 	          // 预览surface不存在  
+	        
 	          return;   
 	        }   
 	        // 更改时停止预览   

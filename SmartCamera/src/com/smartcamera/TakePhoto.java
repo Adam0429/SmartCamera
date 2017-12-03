@@ -19,7 +19,7 @@ public class TakePhoto extends Activity{
 		setContentView(R.layout.activity_take_photo);
 		SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surfaceView2);
 		surfaceHolder = surfaceView.getHolder();
-		Camera c = Camera.open();
+		Camera c = Camera.open(1);
 		cameraView = new CameraView(this,c);
 		cameraView.surfaceCreated(surfaceHolder);
 		Toast.makeText(this, "成功调用相机", Toast.LENGTH_SHORT).show();   	
