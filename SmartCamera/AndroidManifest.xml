@@ -35,7 +35,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name="com.smartcamera.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -44,8 +44,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Camera"
+            android:name="com.smartcamera.Camera"
             android:label="@string/title_activity_camera" >
+        </activity>
+        <activity
+            android:name="com.smartcamera.TakePhoto"
+            android:label="@string/title_activity_take_photo" >
         </activity>
     </application>
 
