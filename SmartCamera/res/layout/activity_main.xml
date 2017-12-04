@@ -55,7 +55,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="camera"
-                    android:text="camera" />
+                    android:text="后置摄像头" />
+
+                <Button
+                    android:id="@+id/button3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="camera2"
+                    android:text="自拍" />
 
             </LinearLayout>
         </LinearLayout>

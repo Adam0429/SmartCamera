@@ -51,6 +51,10 @@
             android:name="com.smartcamera.TakePhoto"
             android:label="@string/title_activity_take_photo" >
         </activity>
+        <activity
+            android:name=".CameraActivity"
+            android:label="@string/title_activity_camera" >
+        </activity>
     </application>
 
 </manifest>

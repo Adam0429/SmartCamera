@@ -49,6 +49,7 @@ public class MainActivity extends Activity {
 	
 	public void camera(View view){
 		Intent intent = new Intent(this, TakePhoto.class);
+		intent.putExtra("para", 0);
 		startActivity(intent);
 		
 //		SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surfaceView1);
@@ -61,6 +62,11 @@ public class MainActivity extends Activity {
 
 	}
 	
+	public void camera2(View view){
+		Intent intent = new Intent(this, TakePhoto.class);
+		intent.putExtra("para", 1);
+		startActivity(intent);
+	}
 	
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
