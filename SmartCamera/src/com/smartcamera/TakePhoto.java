@@ -2,14 +2,18 @@ package com.smartcamera;
 
 import android.R;
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.service.textservice.SpellCheckerService.Session;
 import android.view.Menu;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageButton;
+import android.widget.Toast;
 import helper.CameraInterface;
 import helper.CameraSurfaceView;
 import helper.DisplayUtil;
@@ -35,7 +39,6 @@ public class TakePhoto extends Activity implements CamOpenOverCallback {
 		initUI();
 		initViewParams();
 		
-		shutterBtn.setOnClickListener(new BtnListeners());
 	}
 
 
@@ -66,19 +69,20 @@ public class TakePhoto extends Activity implements CamOpenOverCallback {
 		SurfaceHolder holder = surfaceView.getSurfaceHolder();
 		CameraInterface.getInstance().doStartPreview(holder, previewRate);
 	}
-	private class BtnListeners implements OnClickListener{
+	
+	public void shuttle(View v){
+		byte[] picture = CameraInterface.getInstance().returnpicture();
+		Intent intent = new Intent(this,MainActivity.class);
+		intent.putExtra("picture", picture);
+		if(picture != null)
+			Toast.makeText(this, "byte²»Îª¿Õ", Toast.LENGTH_SHORT).show();   	
+		else 
+			Toast.makeText(this, "byteÎª¿Õ", Toast.LENGTH_SHORT).show();   	
 
-		@Override
-		public void onClick(View v) {
-			// TODO Auto-generated method stub
-			switch(v.getId()){
-			case com.smartcemera.R.id.btn_shutter:
-				CameraInterface.getInstance().doTakePicture();
-				break;
-			default:break;
-			}
-		}
-
+//		startActivity(intent);
 	}
+	
+	
+	
 
 }

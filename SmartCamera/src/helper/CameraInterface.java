@@ -3,8 +3,10 @@ package helper;
 import java.io.IOException;
 import java.util.List;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Picture;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
@@ -20,6 +22,7 @@ public class CameraInterface {
 	private boolean isPreviewing = false;
 	private float mPreviwRate = -1f;
 	private static CameraInterface mCameraInterface;
+	byte[] picture;
 
 	public interface CamOpenOverCallback{
 		public void cameraHasOpened();
@@ -28,7 +31,7 @@ public class CameraInterface {
 	private CameraInterface(){
 
 	}
-	public static synchronized CameraInterface getInstance(){
+	public static synchronized CameraInterface getInstance(){//安全的打开方式,先检查是否存在对象
 		if(mCameraInterface == null){
 			mCameraInterface = new CameraInterface();
 		}
@@ -111,10 +114,11 @@ public class CameraInterface {
 	/**
 	 * 拍照
 	 */
-	public void doTakePicture(){
+	public byte[] doTakePicture(){
 		if(isPreviewing && (mCamera != null)){
 			mCamera.takePicture(mShutterCallback, null, mJpegPictureCallback);
 		}
+		return returnpicture();
 	}
 
 	/*为了实现拍照的快门声音及拍照保存照片需要下面三个回调变量*/
@@ -131,9 +135,11 @@ public class CameraInterface {
 	{
 
 		public void onPictureTaken(byte[] data, Camera camera) {
+			picture = data;
+
 			// TODO Auto-generated method stub
 			Log.i(TAG, "myRawCallback:onPictureTaken...");
-
+	
 		}
 	};
 	PictureCallback mJpegPictureCallback = new PictureCallback() 
@@ -143,24 +149,34 @@ public class CameraInterface {
 			// TODO Auto-generated method stub
 			Log.i(TAG, "myJpegCallback:onPictureTaken...");
 			Bitmap b = null;
-			if(null != data){
+			if(data != null){
 				b = BitmapFactory.decodeByteArray(data, 0, data.length);//data是字节数据，将其解析成位图
 				mCamera.stopPreview();
 				isPreviewing = false;
+				Log.i("？？？？？？？？？？？？？、、","dat？？？？？？？？？？、、a");
+
 			}
+			else
+				Log.i("！！！！！！！！！！！","data为空！！！！！！！！！！！！！");
+			
 			//保存图片到sdcard
 			if(null != b)
-			{
+			{	
 				//设置FOCUS_MODE_CONTINUOUS_VIDEO)之后，myParam.set("rotation", 90)失效。
 				//图片竟然不能旋转了，故这里要旋转下
-				Bitmap rotaBitmap = ImageUtil.getRotateBitmap(b, 90.0f);
-				FileUtil.saveBitmap(rotaBitmap);
+				Bitmap rotaBitmap = ImageUtil.getRotateBitmap(b, 180.0f);
+				FileUtil.saveBitmap(b);
 			}
 			//再次进入预览
 			mCamera.startPreview();
 			isPreviewing = true;
+
 		}
 	};
+	
+	public byte[] returnpicture(){
+		return picture;
+	}
 
 
 }

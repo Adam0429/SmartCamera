@@ -38,6 +38,15 @@ public class MainActivity extends Activity {
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		if(getIntent().getByteArrayExtra("picture") != null){
+			byte[] b = getIntent().getByteArrayExtra("picture");
+			Bitmap bitmap = byteTobitmap(b);
+			ImageView mIV = (ImageView) findViewById(R.id.imageView1);
+			mIV.setImageBitmap(bitmap); 
+			Toast.makeText(this, "∂¡»°Õº∆¨", Toast.LENGTH_SHORT).show();   	
+
+		}
 	}
 
 	public void upload(View view){
@@ -180,4 +189,8 @@ public class MainActivity extends Activity {
 //	    textView2.setText(result);
 	    return result;  
 	}  
+	
+	public Bitmap byteTobitmap(byte[] data){
+		return BitmapFactory.decodeByteArray(data, 0, data.length);
+	}
 }
