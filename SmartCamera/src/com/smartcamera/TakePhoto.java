@@ -17,21 +17,24 @@ import android.widget.Toast;
 import helper.CameraInterface;
 import helper.CameraSurfaceView;
 import helper.DisplayUtil;
+import helper.FileUtil;
 import helper.CameraInterface.CamOpenOverCallback;
 
 public class TakePhoto extends Activity implements CamOpenOverCallback {
 	private static final String TAG = "yanzi";
 	CameraSurfaceView surfaceView = null;
+	CameraInterface cameraInterface = null;
 	ImageButton shutterBtn;
 	float previewRate = -1f;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		cameraInterface = new CameraInterface();
 		Thread openThread = new Thread(){
-			@Override
-			public void run() {
+			
+						public void run() {
 				// TODO Auto-generated method stub
-				CameraInterface.getInstance().doOpenCamera(TakePhoto.this,getIntent().getIntExtra("para",1));
+				cameraInterface.doOpenCamera(TakePhoto.this,getIntent().getIntExtra("para",1));
 			}
 		};
 		openThread.start();
@@ -67,19 +70,28 @@ public class TakePhoto extends Activity implements CamOpenOverCallback {
 	public void cameraHasOpened() {
 		// TODO Auto-generated method stub
 		SurfaceHolder holder = surfaceView.getSurfaceHolder();
-		CameraInterface.getInstance().doStartPreview(holder, previewRate);
+		cameraInterface.doStartPreview(holder, previewRate);
 	}
 	
 	public void shuttle(View v){
-		byte[] picture = CameraInterface.getInstance().returnpicture();
+		cameraInterface.doTakePicture();
+		byte[] picture = cameraInterface.getpicture();
 		Intent intent = new Intent(this,MainActivity.class);
 		intent.putExtra("picture", picture);
 		if(picture != null)
 			Toast.makeText(this, "byte不为空", Toast.LENGTH_SHORT).show();   	
 		else 
 			Toast.makeText(this, "byte为空", Toast.LENGTH_SHORT).show();   	
-
-//		startActivity(intent);
+		
+//		String path = FileUtil.initPath();		
+//		cameraInterface.doTakePicture();
+//		Intent intent = new Intent(this,MainActivity.class);			
+//		intent.putExtra("path", path);
+//		if(path != null)
+//			Toast.makeText(this, path, Toast.LENGTH_SHORT).show();   	
+//		else 
+//			Toast.makeText(this, "path为空", Toast.LENGTH_SHORT).show();   
+		startActivity(intent);
 	}
 	
 	

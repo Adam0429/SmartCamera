@@ -2,6 +2,7 @@ package com.smartcamera;
 
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 
 import com.smartcemera.R;
@@ -20,6 +21,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
@@ -38,15 +40,34 @@ public class MainActivity extends Activity {
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+		Intent intent =getIntent();
+//		if(getIntent().getStringExtra("path") != null){
+////			byte[] b = getIntent().getByteArrayExtra("picture");
+////			Bitmap bitmap = byteTobitmap(b);
+//			ImageView mIV = (ImageView) findViewById(R.id.imageView1);
+////			mIV.setImageBitmap(bitmap); 
+//			Bitmap bm = null;  
+//	    	ContentResolver resolver = getContentResolver();  
+//	    
+//	    	 File file = new File(getIntent().getStringExtra("path"));
+//             if (file.exists()) {
+//                     Bitmap bm1 = BitmapFactory.decodeFile(getIntent().getStringExtra("path"));
+//                     //将图片显示到ImageView中
+// 	    			mIV.setImageBitmap(bm1); 
+//             }
+//		}
+	        	
 		if(getIntent().getByteArrayExtra("picture") != null){
-			byte[] b = getIntent().getByteArrayExtra("picture");
-			Bitmap bitmap = byteTobitmap(b);
+//			byte[] b = getIntent().getByteArrayExtra("picture");
+			Bitmap bitmap = byteTobitmap(getIntent().getByteArrayExtra("picture"));
 			ImageView mIV = (ImageView) findViewById(R.id.imageView1);
-			mIV.setImageBitmap(bitmap); 
-			Toast.makeText(this, "读取图片", Toast.LENGTH_SHORT).show();   	
-
+//			mIV.setImageBitmap(bitmap); 
+	    
+	    	
+ 	    			mIV.setImageBitmap(bitmap); 
+          
 		}
+	
 	}
 
 	public void upload(View view){
@@ -60,14 +81,6 @@ public class MainActivity extends Activity {
 		Intent intent = new Intent(this, TakePhoto.class);
 		intent.putExtra("para", 0);
 		startActivity(intent);
-		
-//		SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surfaceView1);
-//
-//		Camera c = Camera.open();
-//		CameraView cameraView = new CameraView(this,c);
-//
-//		cameraView.surfaceCreated(surfaceView.getHolder());
-//		Toast.makeText(this, "读取图片error,请从图库中选择不然会报错", Toast.LENGTH_SHORT).show();   	
 
 	}
 	
@@ -113,9 +126,13 @@ public class MainActivity extends Activity {
 	    		try {  
 	        	
 	    			Uri originalUri = data.getData(); // 获得图片的uri,选择图片时必须从图库中选择不然会报错  
+	    			Toast.makeText(this, originalUri.toString(), Toast.LENGTH_SHORT).show();   	
+					Log.i("读照片",originalUri.toString());
+
+	    			textView.append(originalUri.toString());
 	    			bm = MediaStore.Images.Media.getBitmap(resolver, originalUri);        //得到bitmap图片
 	    			mIV.setImageBitmap(ThumbnailUtils.extractThumbnail(bm, 500, 500)); 
-//	    			textView2.setText(new detect(bitmapToBase64(bm)).run());
+
 	    			String detectresult = new detect(bitmapToBase64(bm)).run();
 	    			if(detectresult.contains("face_token")){
 	    				String token = detectresult.split("face_token\": \"")[1].split("\"")[0];

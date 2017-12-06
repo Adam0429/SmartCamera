@@ -15,6 +15,7 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
 	public CameraSurfaceView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		// TODO Auto-generated constructor stub
+		mCameraInterface = new CameraInterface();
 		mContext = context;
 		mSurfaceHolder = getHolder();
 		mSurfaceHolder.setFormat(PixelFormat.TRANSPARENT);//translucent°ëÍ¸Ã÷ transparentÍ¸Ã÷
@@ -39,7 +40,7 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		// TODO Auto-generated method stub
 		Log.i(TAG, "surfaceDestroyed...");
-		CameraInterface.getInstance().doStopCamera();
+		mCameraInterface.doStopCamera();
 	}
 	public SurfaceHolder getSurfaceHolder(){
 		return mSurfaceHolder;

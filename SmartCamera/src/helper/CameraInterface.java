@@ -23,20 +23,20 @@ public class CameraInterface {
 	private float mPreviwRate = -1f;
 	private static CameraInterface mCameraInterface;
 	byte[] picture;
-
+	String path;
 	public interface CamOpenOverCallback{
 		public void cameraHasOpened();
 	}
 
-	private CameraInterface(){
+	public CameraInterface(){
 
 	}
-	public static synchronized CameraInterface getInstance(){//安全的打开方式,先检查是否存在对象
-		if(mCameraInterface == null){
-			mCameraInterface = new CameraInterface();
-		}
-		return mCameraInterface;
-	}
+//	public static synchronized CameraInterface getInstance(){//安全的打开方式,先检查是否存在对象
+//		if(mCameraInterface == null){
+//			mCameraInterface = new CameraInterface();
+//		}
+//		return mCameraInterface;
+//	}
 	/**打开Camera
 	 * @param callback
 	 */
@@ -114,11 +114,10 @@ public class CameraInterface {
 	/**
 	 * 拍照
 	 */
-	public byte[] doTakePicture(){
+	public void doTakePicture(){
 		if(isPreviewing && (mCamera != null)){
 			mCamera.takePicture(mShutterCallback, null, mJpegPictureCallback);
 		}
-		return returnpicture();
 	}
 
 	/*为了实现拍照的快门声音及拍照保存照片需要下面三个回调变量*/
@@ -153,19 +152,21 @@ public class CameraInterface {
 				b = BitmapFactory.decodeByteArray(data, 0, data.length);//data是字节数据，将其解析成位图
 				mCamera.stopPreview();
 				isPreviewing = false;
-				Log.i("？？？？？？？？？？？？？、、","dat？？？？？？？？？？、、a");
+				Log.i("存照片","有照片");
 
 			}
 			else
-				Log.i("！！！！！！！！！！！","data为空！！！！！！！！！！！！！");
+				Log.i("存照片","照片为空");
 			
 			//保存图片到sdcard
-			if(null != b)
+			if(b != null)
 			{	
 				//设置FOCUS_MODE_CONTINUOUS_VIDEO)之后，myParam.set("rotation", 90)失效。
 				//图片竟然不能旋转了，故这里要旋转下
 				Bitmap rotaBitmap = ImageUtil.getRotateBitmap(b, 180.0f);
 				FileUtil.saveBitmap(b);
+				Log.i("存照片","成功");
+
 			}
 			//再次进入预览
 			mCamera.startPreview();
@@ -174,9 +175,12 @@ public class CameraInterface {
 		}
 	};
 	
-	public byte[] returnpicture(){
+	public byte[] getpicture(){
 		return picture;
 	}
-
+	
+	public String getpath(){
+		return path;
+	}
 
 }
