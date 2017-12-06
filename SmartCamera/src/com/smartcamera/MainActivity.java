@@ -15,6 +15,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
@@ -42,6 +43,8 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		ImageView mIV = (ImageView) findViewById(R.id.imageView1);
+		TextView textView = (TextView)findViewById(R.id.textView1);
+	    TextView textView2 = (TextView)findViewById(R.id.textView2);
 		Intent intent =getIntent();
 		if(getIntent().getStringExtra("path") != null){	    
 	    	 File file = new File(FileUtil.initPath()+"/"+getIntent().getStringExtra("path")+".jpg");
@@ -51,11 +54,24 @@ public class MainActivity extends Activity {
 
 //            	int i = Integer.parseInt(getIntent().getStringExtra("path"));
         		Toast.makeText(this,FileUtil.initPath()+"/"+getIntent().getStringExtra("path")+".jpg", Toast.LENGTH_SHORT).show();   
-
             	Bitmap bm1 = BitmapFactory.decodeFile(FileUtil.initPath()+"/"+getIntent().getStringExtra("path")+".jpg");
+        		Bitmap bm2 = rotateBitmap(bm1, -90);
 
- 	    		mIV.setImageBitmap(bm1); 
-            		
+ 	    		mIV.setImageBitmap(bm2); 
+            
+    			String detectresult = new detect(bitmapToBase64(bm2)).run();
+    			if(detectresult.contains("face_token")){
+    				String token = detectresult.split("face_token\": \"")[1].split("\"")[0];
+    				textView.setText(new analyze(token).run());
+    			}
+    			else if(detectresult.contains("INVALID_IMAGE_SIZE")||detectresult.contains("IMAGE_FILE_TOO_LARGE"))
+    				textView.setText("图片大小不合适,请控制在2M以内");
+    			else{
+    				textView.setText("");
+    				textView2.setText("错误报告:");
+    				textView2.append(detectresult);
+    			}
+  
              }
 		}
 	        	
@@ -212,4 +228,21 @@ public class MainActivity extends Activity {
 	public Bitmap byteTobitmap(byte[] data){
 		return BitmapFactory.decodeByteArray(data, 0, data.length);
 	}
+	
+	public Bitmap rotateBitmap(Bitmap origin, float alpha) {
+		if (origin == null) {
+	            return null;
+	    }
+	     int width = origin.getWidth();
+	     int height = origin.getHeight();
+	        Matrix matrix = new Matrix();
+	        matrix.setRotate(alpha);
+	        // 围绕原地进行旋转
+	        Bitmap newBM = Bitmap.createBitmap(origin, 0, 0, width, height, matrix, false);
+	        if (newBM.equals(origin)) {
+	            return newBM;
+	        }
+	        origin.recycle();
+	        return newBM;
+	    }
 }

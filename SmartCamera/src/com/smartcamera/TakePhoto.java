@@ -87,8 +87,7 @@ public class TakePhoto extends Activity implements CamOpenOverCallback {
 		Intent intent = new Intent(this,MainActivity.class);			
 		intent.putExtra("path", Integer.toString(path));
 		try {
-			Thread.sleep(300);//之前立即就startactivity,会报错,猜测是因为存图还需要时间,所以那里一直不能获得,所以让他睡一会儿,300ms不够还可以再加
-
+			Thread.sleep(1100);//之前立即就startactivity,会报错,猜测是因为存图还需要时间,所以那里一直不能获得,所以让他睡一会儿,300ms不够还可以再加
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
