@@ -2,7 +2,6 @@ package helper;
 
 import java.io.IOException;
 import java.util.List;
-
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,10 +19,8 @@ public class CameraInterface {
 	private Camera mCamera;
 	private Camera.Parameters mParams;
 	private boolean isPreviewing = false;
-	private float mPreviwRate = -1f;
 	private static CameraInterface mCameraInterface;
-	byte[] picture;
-	String path;
+	private float mPreviwRate = -1f;
 	public interface CamOpenOverCallback{
 		public void cameraHasOpened();
 	}
@@ -31,12 +28,12 @@ public class CameraInterface {
 	public CameraInterface(){
 
 	}
-//	public static synchronized CameraInterface getInstance(){//安全的打开方式,先检查是否存在对象
-//		if(mCameraInterface == null){
-//			mCameraInterface = new CameraInterface();
-//		}
-//		return mCameraInterface;
-//	}
+	public static synchronized CameraInterface getInstance(){//安全的打开方式,先检查是否存在对象
+		if(mCameraInterface == null){
+			mCameraInterface = new CameraInterface();
+		}
+		return mCameraInterface;
+	}
 	/**打开Camera
 	 * @param callback
 	 */
@@ -113,11 +110,16 @@ public class CameraInterface {
 	}
 	/**
 	 * 拍照
+	 * @return 
 	 */
-	public void doTakePicture(){
+	public void doTakePicture(){//这个方法比回调方法更先执行，所以picture不能用他返回
 		if(isPreviewing && (mCamera != null)){
 			mCamera.takePicture(mShutterCallback, null, mJpegPictureCallback);
+			Log.i("照片","拍照!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
 		}
+		
+
 	}
 
 	/*为了实现拍照的快门声音及拍照保存照片需要下面三个回调变量*/
@@ -127,6 +129,7 @@ public class CameraInterface {
 		public void onShutter() {
 			// TODO Auto-generated method stub
 			Log.i(TAG, "myShutterCallback:onShutter...");
+			
 		}
 	};
 	PictureCallback mRawCallback = new PictureCallback() 
@@ -134,7 +137,6 @@ public class CameraInterface {
 	{
 
 		public void onPictureTaken(byte[] data, Camera camera) {
-			picture = data;
 
 			// TODO Auto-generated method stub
 			Log.i(TAG, "myRawCallback:onPictureTaken...");
@@ -149,10 +151,10 @@ public class CameraInterface {
 			Log.i(TAG, "myJpegCallback:onPictureTaken...");
 			Bitmap b = null;
 			if(data != null){
+
 				b = BitmapFactory.decodeByteArray(data, 0, data.length);//data是字节数据，将其解析成位图
 				mCamera.stopPreview();
 				isPreviewing = false;
-				Log.i("存照片","有照片");
 
 			}
 			else
@@ -175,12 +177,7 @@ public class CameraInterface {
 		}
 	};
 	
-	public byte[] getpicture(){
-		return picture;
-	}
-	
-	public String getpath(){
-		return path;
-	}
+
+
 
 }

@@ -1,12 +1,14 @@
 package com.smartcamera;
 
 import android.R;
+import android.R.integer;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.service.textservice.SpellCheckerService.Session;
+import android.util.Log;
 import android.view.Menu;
 import android.view.SurfaceHolder;
 import android.view.View;
@@ -23,18 +25,15 @@ import helper.CameraInterface.CamOpenOverCallback;
 public class TakePhoto extends Activity implements CamOpenOverCallback {
 	private static final String TAG = "yanzi";
 	CameraSurfaceView surfaceView = null;
-	CameraInterface cameraInterface = null;
+	CameraInterface cameraInterface;
 	ImageButton shutterBtn;
 	float previewRate = -1f;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		cameraInterface = new CameraInterface();
 		Thread openThread = new Thread(){
-			
-						public void run() {
-				// TODO Auto-generated method stub
-				cameraInterface.doOpenCamera(TakePhoto.this,getIntent().getIntExtra("para",1));
+		public void run() {
+			CameraInterface.getInstance().doOpenCamera(TakePhoto.this,getIntent().getIntExtra("para",1));
 			}
 		};
 		openThread.start();
@@ -70,29 +69,34 @@ public class TakePhoto extends Activity implements CamOpenOverCallback {
 	public void cameraHasOpened() {
 		// TODO Auto-generated method stub
 		SurfaceHolder holder = surfaceView.getSurfaceHolder();
-		cameraInterface.doStartPreview(holder, previewRate);
+		CameraInterface.getInstance().doStartPreview(holder, previewRate);
 	}
 	
 	public void shuttle(View v){
-		cameraInterface.doTakePicture();
-		byte[] picture = cameraInterface.getpicture();
-		Intent intent = new Intent(this,MainActivity.class);
-		intent.putExtra("picture", picture);
-		if(picture != null)
-			Toast.makeText(this, "byte不为空", Toast.LENGTH_SHORT).show();   	
-		else 
-			Toast.makeText(this, "byte为空", Toast.LENGTH_SHORT).show();   	
-		
-//		String path = FileUtil.initPath();		
 //		cameraInterface.doTakePicture();
-//		Intent intent = new Intent(this,MainActivity.class);			
-//		intent.putExtra("path", path);
-//		if(path != null)
-//			Toast.makeText(this, path, Toast.LENGTH_SHORT).show();   	
+//		byte[] picture = cameraInterface.getpicture();
+//		Intent intent = new Intent(this,MainActivity.class);
+//		if(picture != null)
+//			Toast.makeText(this, "byte不为空", Toast.LENGTH_SHORT).show();   	
 //		else 
-//			Toast.makeText(this, "path为空", Toast.LENGTH_SHORT).show();   
-		startActivity(intent);
-	}
+//			Toast.makeText(this, "byte为空", Toast.LENGTH_SHORT).show();   	
+//		intent.putExtra("picture", picture);
+
+		CameraInterface.getInstance().doTakePicture();
+		int path = FileUtil.DirNumeber(FileUtil.initPath());		
+		Intent intent = new Intent(this,MainActivity.class);			
+		intent.putExtra("path", Integer.toString(path));
+		try {
+			Thread.sleep(300);//之前立即就startactivity,会报错,猜测是因为存图还需要时间,所以那里一直不能获得,所以让他睡一会儿,300ms不够还可以再加
+
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}//延迟3s，时间自己定
+//		else 
+//		Toast.makeText(this, Integer.toString(path), Toast.LENGTH_SHORT).show();   
+		startActivity(intent);			
+		}
 	
 	
 	

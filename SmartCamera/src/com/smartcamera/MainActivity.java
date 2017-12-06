@@ -32,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import api.analyze;
 import api.detect;
+import helper.FileUtil;
 
 public class MainActivity extends Activity {
 
@@ -40,33 +41,34 @@ public class MainActivity extends Activity {
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		ImageView mIV = (ImageView) findViewById(R.id.imageView1);
 		Intent intent =getIntent();
-//		if(getIntent().getStringExtra("path") != null){
+		if(getIntent().getStringExtra("path") != null){	    
+	    	 File file = new File(FileUtil.initPath()+"/"+getIntent().getStringExtra("path")+".jpg");
+             if (file.exists()) {//如果太快进入的话,图还没存好，就要显示，会出错
+            	File file1 = new File(FileUtil.initPath());
+         		File[] files = file.listFiles();
+
+//            	int i = Integer.parseInt(getIntent().getStringExtra("path"));
+        		Toast.makeText(this,FileUtil.initPath()+"/"+getIntent().getStringExtra("path")+".jpg", Toast.LENGTH_SHORT).show();   
+
+            	Bitmap bm1 = BitmapFactory.decodeFile(FileUtil.initPath()+"/"+getIntent().getStringExtra("path")+".jpg");
+
+ 	    		mIV.setImageBitmap(bm1); 
+            		
+             }
+		}
+	        	
+//		if(getIntent().getByteArrayExtra("picture") != null){
 ////			byte[] b = getIntent().getByteArrayExtra("picture");
-////			Bitmap bitmap = byteTobitmap(b);
+//			Bitmap bitmap = byteTobitmap(getIntent().getByteArrayExtra("picture"));
 //			ImageView mIV = (ImageView) findViewById(R.id.imageView1);
 ////			mIV.setImageBitmap(bitmap); 
-//			Bitmap bm = null;  
-//	    	ContentResolver resolver = getContentResolver();  
 //	    
-//	    	 File file = new File(getIntent().getStringExtra("path"));
-//             if (file.exists()) {
-//                     Bitmap bm1 = BitmapFactory.decodeFile(getIntent().getStringExtra("path"));
-//                     //将图片显示到ImageView中
-// 	    			mIV.setImageBitmap(bm1); 
-//             }
+//	    	
+// 	    			mIV.setImageBitmap(bitmap); 
+//          
 //		}
-	        	
-		if(getIntent().getByteArrayExtra("picture") != null){
-//			byte[] b = getIntent().getByteArrayExtra("picture");
-			Bitmap bitmap = byteTobitmap(getIntent().getByteArrayExtra("picture"));
-			ImageView mIV = (ImageView) findViewById(R.id.imageView1);
-//			mIV.setImageBitmap(bitmap); 
-	    
-	    	
- 	    			mIV.setImageBitmap(bitmap); 
-          
-		}
 	
 	}
 

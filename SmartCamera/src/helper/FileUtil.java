@@ -6,17 +6,21 @@ import java.io.IOException;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
+import android.renderscript.Script.KernelID;
 import android.util.Log;
 
 public class FileUtil {
 	private static final  String TAG = "FileUtil";
 	private static final File parentPath = Environment.getExternalStorageDirectory();
 	private static String storagePath = "";
+	private static String PicturePath = "";
 	private static final String DST_FOLDER_NAME = "PlayCamera2";
 
 	/**初始化保存路径
 	 * @return
 	 */
+
+	
 	public static String initPath(){
 		if(storagePath.equals("")){
 			storagePath = parentPath.getAbsolutePath()+"/" + DST_FOLDER_NAME;
@@ -35,8 +39,7 @@ public class FileUtil {
 
 		String path = initPath();
 		
-		long dataTake = System.currentTimeMillis();
-		String jpegName = path + "/" + dataTake +".jpg";
+		String jpegName = path + "/" + DirNumeber(path) +".jpg";
 		Log.i(TAG, "saveBitmap:jpegName = " + jpegName);
 		try {
 			FileOutputStream fout = new FileOutputStream(jpegName);
@@ -50,8 +53,13 @@ public class FileUtil {
 			Log.i(TAG, "saveBitmap:失败");
 			e.printStackTrace();
 		}
-
 	}
 	
-	
+	public static int DirNumeber(String dir){
+		File file = new File(dir);
+		File[] files = file.listFiles();
+		int i = files.length;
+		return i+1;
+	}
 }
+	
