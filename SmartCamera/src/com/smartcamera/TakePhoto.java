@@ -6,6 +6,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.hardware.Camera;
+import android.hardware.Camera.PreviewCallback;
 import android.os.Bundle;
 import android.service.textservice.SpellCheckerService.Session;
 import android.util.Log;
@@ -22,18 +24,20 @@ import helper.DisplayUtil;
 import helper.FileUtil;
 import helper.CameraInterface.CamOpenOverCallback;
 
-public class TakePhoto extends Activity implements CamOpenOverCallback {
+public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCallback {
 	private static final String TAG = "yanzi";
 	CameraSurfaceView surfaceView = null;
 	CameraInterface cameraInterface;
 	ImageButton shutterBtn;
 	float previewRate = -1f;
+	int ca;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		ca = getIntent().getIntExtra("para",1);
 		Thread openThread = new Thread(){
 		public void run() {
-			CameraInterface.getInstance().doOpenCamera(TakePhoto.this,getIntent().getIntExtra("para",1));
+			CameraInterface.getInstance().doOpenCamera(TakePhoto.this,ca);
 			}
 		};
 		openThread.start();
@@ -83,9 +87,10 @@ public class TakePhoto extends Activity implements CamOpenOverCallback {
 //		intent.putExtra("picture", picture);
 
 		CameraInterface.getInstance().doTakePicture();
-		int path = FileUtil.DirNumeber(FileUtil.initPath());		
+		int path = FileUtil.DirNumeber(FileUtil.initPath());	
 		Intent intent = new Intent(this,MainActivity.class);			
-		intent.putExtra("path", Integer.toString(path));
+		intent.putExtra("path", Integer.toString(path));	
+		intent.putExtra("camera", Integer.toString(ca));	
 		try {
 			Thread.sleep(1100);//之前立即就startactivity,会报错,猜测是因为存图还需要时间,所以那里一直不能获得,所以让他睡一会儿,300ms不够还可以再加
 		} catch (InterruptedException e) {
@@ -96,6 +101,13 @@ public class TakePhoto extends Activity implements CamOpenOverCallback {
 //		Toast.makeText(this, Integer.toString(path), Toast.LENGTH_SHORT).show();   
 		startActivity(intent);			
 		}
+
+
+
+	@Override
+	public void onPreviewFrame(byte[] arg0, Camera arg1) {
+//		CameraInterface.getInstance().mCamera.setOneShotPreviewCallback(TakePhoto.this);
+	}
 	
 	
 	

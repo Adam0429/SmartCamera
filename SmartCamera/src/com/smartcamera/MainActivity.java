@@ -35,8 +35,8 @@ import api.analyze;
 import api.detect;
 import helper.FileUtil;
 
-public class MainActivity extends Activity {
-
+public class MainActivity extends Activity {//加一个后台上传的代码
+	
 
 	protected void onCreate(Bundle savedInstanceState) {
 		
@@ -55,7 +55,11 @@ public class MainActivity extends Activity {
 //            	int i = Integer.parseInt(getIntent().getStringExtra("path"));
         		Toast.makeText(this,FileUtil.initPath()+"/"+getIntent().getStringExtra("path")+".jpg", Toast.LENGTH_SHORT).show();   
             	Bitmap bm1 = BitmapFactory.decodeFile(FileUtil.initPath()+"/"+getIntent().getStringExtra("path")+".jpg");
-        		Bitmap bm2 = rotateBitmap(bm1, -90);
+        		Bitmap bm2;
+            	if(getIntent().getStringExtra("camera").equals("1"))
+            		bm2 = rotateBitmap(bm1, -90);
+            	else
+            		bm2 = rotateBitmap(bm1, 90);
 
  	    		mIV.setImageBitmap(bm2); 
             

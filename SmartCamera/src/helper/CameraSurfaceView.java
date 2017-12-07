@@ -2,12 +2,14 @@ package helper;
 
 import android.content.Context;
 import android.graphics.PixelFormat;
+import android.hardware.Camera;
+import android.hardware.Camera.PreviewCallback;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
+public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Callback,PreviewCallback{//这个类管理显示camera画面的功能
 	private static final String TAG = "yanzi";
 	CameraInterface mCameraInterface;
 	Context mContext;
@@ -44,6 +46,11 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
 	}
 	public SurfaceHolder getSurfaceHolder(){
 		return mSurfaceHolder;
+	}
+
+	@Override
+	public void onPreviewFrame(byte[] arg0, Camera arg1) {//这个函数里的data就是实时预览帧视频。一旦程序调用PreviewCallback接口，就会自动调用onPreviewFrame这个函数。
+		//如果Activity继承了PreviewCallback这个接口，只需继承Camera.setOneShotPreviewCallback(this);就可以了。程序会自动调用主类Activity里的onPreviewFrame函数
 	}
 	
 }
