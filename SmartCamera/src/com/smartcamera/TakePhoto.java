@@ -1,5 +1,9 @@
 package com.smartcamera;
 
+import javax.net.ssl.SSLException;
+
+import org.apache.http.entity.SerializableEntity;
+
 import android.R;
 import android.R.integer;
 import android.app.Activity;
@@ -24,7 +28,7 @@ import helper.DisplayUtil;
 import helper.FileUtil;
 import helper.CameraInterface.CamOpenOverCallback;
 
-public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCallback {
+public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCallback{
 	private static final String TAG = "yanzi";
 	CameraSurfaceView surfaceView = null;
 	CameraInterface cameraInterface;
@@ -44,7 +48,20 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 		setContentView(com.smartcemera.R.layout.activity_take_photo);
 		initUI();
 		initViewParams();
-		
+		Thread photoThread = new Thread(){
+			public void run() {
+				while(true){
+					CameraInterface.getInstance().doTakePicture();
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		};
+		photoThread.start();
 	}
 
 
@@ -108,6 +125,10 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 	public void onPreviewFrame(byte[] arg0, Camera arg1) {
 //		CameraInterface.getInstance().mCamera.setOneShotPreviewCallback(TakePhoto.this);
 	}
+
+
+
+	
 	
 	
 	
