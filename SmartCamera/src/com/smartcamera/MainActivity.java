@@ -93,7 +93,7 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 	}
 
 	public void upload(View view){
-	      Intent intent = new Intent(Intent.ACTION_GET_CONTENT);  
+	      Intent intent = new Intent(Intent.ACTION_GET_CONTENT).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);//销毁前一个intent防止过多的界面  
 	      intent.setType("image/*");//设置类型
           intent.addCategory(Intent.CATEGORY_OPENABLE);  
           startActivityForResult(intent,1);  

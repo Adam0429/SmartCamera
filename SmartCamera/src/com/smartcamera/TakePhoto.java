@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
@@ -44,8 +45,10 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 	CameraSurfaceView surfaceView = null;
 	CameraInterface cameraInterface;
 	ImageButton shutterBtn;
+	Thread photoThread;
 	float previewRate = -1f;
 	int ca;
+	boolean check = true;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -57,28 +60,29 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 		};
 		openThread.start();
 
-//		Thread photoThread = new Thread(){
-//			public void run() {
-//				while(CameraInterface.getInstance().isPreviewing){
-//					Log.i("sddsd", "sdsdsdd");
-//					CameraInterface.getInstance().mCamera.setOneShotPreviewCallback(TakePhoto.this);
-//					//使用此方法注册预览回调接口时，会将下一帧数据回调给onPreviewFrame()方法，调用完成后这个回调接口将被销毁。也就是只会回调一次预览帧数据。 
-//					try{	
-//						Thread.sleep(1000);
-//					} catch (InterruptedException e) {
-//						e.printStackTrace();
-////	                    Thread.currentThread().interrupt();  
-//
-//					}
-//				}
-//			}
-//		};
-//		photoThread.start();
-		
 		setContentView(com.smartcemera.R.layout.activity_take_photo);
 		initUI();
 		initViewParams();
 
+		photoThread = new Thread(){
+			public void run() {
+				while(check){
+				if(CameraInterface.getInstance().isPreviewing){					
+						CameraInterface.getInstance().mCamera.setOneShotPreviewCallback(TakePhoto.this);
+					}
+					
+				else 
+					Log.i("cam", "error");
+//					//使用此方法注册预览回调接口时，会将下一帧数据回调给onPreviewFrame()方法，调用完成后这个回调接口将被销毁。也就是只会回调一次预览帧数据。 
+					try{	
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}}
+//				}
+			}
+		};
+		photoThread.start();
 		
 	}
 
@@ -109,29 +113,19 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 		CameraInterface.getInstance().doStartPreview(holder, previewRate);
 	}
 	
-	public void shuttle(View v){
-//		cameraInterface.doTakePicture();
-//		byte[] picture = cameraInterface.getpicture();
-//		Intent intent = new Intent(this,MainActivity.class);
-//		if(picture != null)
-//			Toast.makeText(this, "byte不为空", Toast.LENGTH_SHORT).show();   	
-//		else 
-//			Toast.makeText(this, "byte为空", Toast.LENGTH_SHORT).show();   	
-//		intent.putExtra("picture", picture);
+	public void shuttle(){
 
 		CameraInterface.getInstance().doTakePicture();
 		int path = FileUtil.DirNumeber(FileUtil.initPath());	
-		Intent intent = new Intent(this,MainActivity.class);			
+		Intent intent = new Intent(this,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);			
 		intent.putExtra("path", Integer.toString(path));	
 		intent.putExtra("camera", Integer.toString(ca));	
 		try {
-			Thread.sleep(300);//之前立即就startactivity,会报错,猜测是因为存图还需要时间,所以那里一直不能获得,所以让他睡一会儿,300ms不够还可以再加
+			Thread.sleep(1100);//之前立即就startactivity,会报错,猜测是因为存图还需要时间,所以那里一直不能获得,所以让他睡一会儿,300ms不够还可以再加
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}//延迟3s，时间自己定
-//		else 
-//		Toast.makeText(this, Integer.toString(path), Toast.LENGTH_SHORT).show();   
 		startActivity(intent);			
 		}
 
@@ -139,17 +133,36 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 
 	public void onPreviewFrame(byte[] data, Camera arg1) {//这个函数里的data就是实时预览帧视频。一旦程序调用PreviewCallback接口，就会自动调用onPreviewFrame这个函数。
 		//如果Activity继承了PreviewCallback这个接口，只需继承Camera.setOneShotPreviewCallback(this);就可以了。程序会自动调用主类Activity里的onPreviewFrame函数
-		//处理数据写在这里,拍照的动作也写这里	           
-//		Bitmap bm = byteTobitmap(data);
-//		String base64= bitmapToBase64(bm);
-//		String result = new detect(base64).run(); 
-//		Log.i("detect", result);
-//		Toast.makeText(this, result, Toast.LENGTH_SHORT).show();   
-		
+		//处理数据写在这里,拍照的动作也写这里	     
+		if(data != null){
+			 Size size = CameraInterface.getInstance().mCamera.getParameters().getPreviewSize();          
+			    try{  
+			        YuvImage image = new YuvImage(data, ImageFormat.NV21, size.width, size.height, null);  
+			        if(image!=null){  
+			            ByteArrayOutputStream stream = new ByteArrayOutputStream();  
+			            image.compressToJpeg(new Rect(0, 0, size.width, size.height), 80, stream);  
+			            Bitmap bmp = BitmapFactory.decodeByteArray(stream.toByteArray(), 0, stream.size());  
+			            stream.close(); 
+			            Bitmap bm2;
+			            if(getIntent().getIntExtra("para",1) == 1)
+			            	bm2 = rotateBitmap(bmp, -90);	//得转成正脸才能被api识别
+			            else 
+			            	bm2 = rotateBitmap(bmp, 90);
+			            String base64= bitmapToBase64(bm2);
+	       				String result = new detect(base64).run(); 
+	       				Log.i("detect", result);
+	       				check = false;
+	       				if(result.contains("face_token")){
+	       				
+	       					shuttle();
+	       				}
+			        }  }catch (Exception e) {
+						// TODO: handle exception
+				}
+		}
 	}
 
 	public String bitmapToBase64(Bitmap bitmap) {  
-        
 	    String result = null;  
 	    ByteArrayOutputStream baos = null;  
 	    try {  
@@ -176,7 +189,22 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 		return BitmapFactory.decodeByteArray(data, 0, data.length);
 	}
 	
-	
+	public Bitmap rotateBitmap(Bitmap origin, float alpha) {
+		if (origin == null) {
+	            return null;
+	    }
+	     int width = origin.getWidth();
+	     int height = origin.getHeight();
+	        Matrix matrix = new Matrix();
+	        matrix.setRotate(alpha);
+	        // 围绕原地进行旋转
+	        Bitmap newBM = Bitmap.createBitmap(origin, 0, 0, width, height, matrix, false);
+	        if (newBM.equals(origin)) {
+	            return newBM;
+	        }
+	        origin.recycle();
+	        return newBM;
+	    }
 	
 	
 	
