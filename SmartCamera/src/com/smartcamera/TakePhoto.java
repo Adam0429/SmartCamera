@@ -26,9 +26,8 @@ import helper.CameraInterface;
 import helper.CameraSurfaceView;
 import helper.DisplayUtil;
 import helper.FileUtil;
-import helper.CameraInterface.CamOpenOverCallback;
 
-public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCallback{
+public class TakePhoto extends Activity implements PreviewCallback{//继承了callback接口,说明这个类会被调用callback接口里的方法
 	private static final String TAG = "yanzi";
 	CameraSurfaceView surfaceView = null;
 	CameraInterface cameraInterface;
@@ -39,24 +38,29 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		ca = getIntent().getIntExtra("para",1);
-		Thread openThread = new Thread(){
+		Thread openThread = new Thread(){//经过测试，但就执行Camera.open（）这句话一般需要140ms左右。如果放在主线程里无疑是一种浪费
 		public void run() {
-			CameraInterface.getInstance().doOpenCamera(TakePhoto.this,ca);
+			CameraInterface.getInstance().doOpenCamera(ca);
+			cameraHasOpened();			
 			}
 		};
 		openThread.start();
+
+		//使用此方法注册预览回调接口时，会将下一帧数据回调给onPreviewFrame()方法，调用完成后这个回调接口将被销毁。也就是只会回调一次预览帧数据。 
 		setContentView(com.smartcemera.R.layout.activity_take_photo);
 		initUI();
 		initViewParams();
 		Thread photoThread = new Thread(){
 			public void run() {
-				while(true){
-					CameraInterface.getInstance().doTakePicture();
-					try {
+				while(CameraInterface.getInstance().mCamera !=null && CameraInterface.getInstance().isPreviewing){
+					CameraInterface.getInstance().mCamera.setOneShotPreviewCallback(TakePhoto.this);//写进线程					try {
+					try{	
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+//	                    Thread.currentThread().interrupt();  
+
 					}
 				}
 			}
@@ -86,7 +90,6 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 
 	}
 
-	@Override
 	public void cameraHasOpened() {
 		// TODO Auto-generated method stub
 		SurfaceHolder holder = surfaceView.getSurfaceHolder();
@@ -121,9 +124,20 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 
 
 
-	@Override
-	public void onPreviewFrame(byte[] arg0, Camera arg1) {
-//		CameraInterface.getInstance().mCamera.setOneShotPreviewCallback(TakePhoto.this);
+	public void onPreviewFrame(byte[] arg0, Camera arg1) {//这个函数里的data就是实时预览帧视频。一旦程序调用PreviewCallback接口，就会自动调用onPreviewFrame这个函数。
+		//如果Activity继承了PreviewCallback这个接口，只需继承Camera.setOneShotPreviewCallback(this);就可以了。程序会自动调用主类Activity里的onPreviewFrame函数
+//		  if(null != mFaceTask){
+//	            switch(mFaceTask.getStatus()){
+//	            case RUNNING:
+//	                return;
+//	            case PENDING:
+//	                mFaceTask.cancel(false);
+//	                break;
+//	            }
+//	        }
+//	        mFaceTask = new PalmTask(data);
+//	        mFaceTask.execute((Void)null);
+	
 	}
 
 

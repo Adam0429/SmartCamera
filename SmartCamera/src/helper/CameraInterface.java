@@ -16,19 +16,16 @@ import android.view.SurfaceHolder;
 
 public class CameraInterface {
 	private static final String TAG = "yanzi";
-	private Camera mCamera;
+	public Camera mCamera;
 	private Camera.Parameters mParams;
-	private boolean isPreviewing = false;
+	public boolean isPreviewing = false;
 	private static CameraInterface mCameraInterface;
 	private float mPreviwRate = -1f;
-	public interface CamOpenOverCallback{
-		public void cameraHasOpened();
-	}
+//	public interface CamOpenOverCallback{	不知道这里回调有什么意义,猜测可能是如果有多个使用camera类的时候方便些吧
+//		public void cameraHasOpened();
+//	}
 
-	public CameraInterface(){
-
-	}
-	public static synchronized CameraInterface getInstance(){//安全的打开方式,先检查是否存在对象
+	public static synchronized CameraInterface getInstance(){//这个类时单例模式,所以用这个封装
 		if(mCameraInterface == null){
 			mCameraInterface = new CameraInterface();
 		}
@@ -37,11 +34,11 @@ public class CameraInterface {
 	/**打开Camera
 	 * @param callback
 	 */
-	public void doOpenCamera(CamOpenOverCallback callback,int i){
+	public void doOpenCamera(int i){
 		Log.i(TAG, "Camera open....");
 		mCamera = Camera.open(i);
 		Log.i(TAG, "Camera open over....");
-		callback.cameraHasOpened();
+//		callback.cameraHasOpened();		不知道这里回调有什么意义,猜测可能是如果有多个使用camera类的时候方便些吧
 	}
 	/**开启预览
 	 * @param holder
