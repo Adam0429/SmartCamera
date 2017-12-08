@@ -30,8 +30,8 @@ public class detect {
 		//https://api-cn.faceplusplus.com/facepp/v3/face/analyze
 		HashMap<String, String> map = new HashMap<String , String>();
 	  
-        map.put("api_key", "eOUwQEVvjcuhoQED7awCxZYo9bfIJuUc");
-        map.put("api_secret", "XRUTL9spg4O1fuolzOqcbtj8OzTqXHwT");
+        map.put("api_key", "n9QxOygpeFWnsUKb2_-ZbQbYsF_a0nH0");
+        map.put("api_secret", "fZ0Nwq86Wra4I3OkANj2yN4q5xzoHU_b");
         map.put("image_base64", base64);
         /*如果您使用API将face_token存入FaceSet，系统将为您存储face_token对应的人脸特征信息。如果face_token超过72小时没有存放在任何FaceSet中，则会被系统清除。使用Face存储需要以下几个步骤：
 		对图片进行人脸检测，使用Detect API获得face_token。

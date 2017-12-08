@@ -45,10 +45,9 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 	CameraSurfaceView surfaceView = null;
 	CameraInterface cameraInterface;
 	ImageButton shutterBtn;
-	Thread photoThread;
 	float previewRate = -1f;
 	int ca;
-	boolean check = true;
+	boolean check = true;		//用来控制线程的,我发现让线程interrupt不能达到我的目的
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -63,16 +62,15 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 		setContentView(com.smartcemera.R.layout.activity_take_photo);
 		initUI();
 		initViewParams();
-
-		photoThread = new Thread(){
+		
+		Thread photoThread = new Thread(){
 			public void run() {
 				while(check){
 				if(CameraInterface.getInstance().isPreviewing){					
 						CameraInterface.getInstance().mCamera.setOneShotPreviewCallback(TakePhoto.this);
 					}
-					
 				else 
-					Log.i("cam", "error");
+					Log.i("cam", "not previewing");
 //					//使用此方法注册预览回调接口时，会将下一帧数据回调给onPreviewFrame()方法，调用完成后这个回调接口将被销毁。也就是只会回调一次预览帧数据。 
 					try{	
 						Thread.sleep(1000);
@@ -113,8 +111,8 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 		CameraInterface.getInstance().doStartPreview(holder, previewRate);
 	}
 	
-	public void shuttle(){
-
+	public void shuttle(View v){
+		check = false;
 		CameraInterface.getInstance().doTakePicture();
 		int path = FileUtil.DirNumeber(FileUtil.initPath());	
 		Intent intent = new Intent(this,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);			
@@ -153,8 +151,7 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 	       				Log.i("detect", result);
 	       				check = false;
 	       				if(result.contains("face_token")){
-	       				
-	       					shuttle();
+	       					shuttle(surfaceView); //不知道传这个view行不行，因为shuttle中必须有view
 	       				}
 			        }  }catch (Exception e) {
 						// TODO: handle exception

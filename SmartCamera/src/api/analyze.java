@@ -26,8 +26,8 @@ public class analyze {
 		//https://api-cn.faceplusplus.com/facepp/v3/detect
 		//https://api-cn.faceplusplus.com/facepp/v3/face/analyze
         HashMap<String, String> map = new HashMap<String , String>();
-        map.put("api_key", "eOUwQEVvjcuhoQED7awCxZYo9bfIJuUc");
-        map.put("api_secret", "XRUTL9spg4O1fuolzOqcbtj8OzTqXHwT");
+        map.put("api_key", "n9QxOygpeFWnsUKb2_-ZbQbYsF_a0nH0");
+        map.put("api_secret", "fZ0Nwq86Wra4I3OkANj2yN4q5xzoHU_b");
         map.put("return_attributes", "gender,age,smiling,emotion,ethnicity,beauty");
         map.put("face_tokens", token);
 
