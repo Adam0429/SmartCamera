@@ -1,29 +1,43 @@
 package helper;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+
+import com.smartcamera.TakePhoto;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.Picture;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
+import android.graphics.Bitmap.CompressFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
+import android.util.Base64;
 import android.util.Log;
 import android.view.SurfaceHolder;
+import android.widget.ImageView;
+import android.widget.Toast;
+import api.detect;
 
-public class CameraInterface {
+public class CameraInterface implements PreviewCallback{
 	private static final String TAG = "yanzi";
 	public Camera mCamera;
 	private Camera.Parameters mParams;
 	public boolean isPreviewing = false;
 	private static CameraInterface mCameraInterface;
 	private float mPreviwRate = -1f;
-//	public interface CamOpenOverCallback{	不知道这里回调有什么意义,猜测可能是如果有多个使用camera类的时候方便些吧
-//		public void cameraHasOpened();
-//	}
+	public interface CamOpenOverCallback{	//不知道这里回调有什么意义,猜测可能是如果有多个使用camera类的时候方便些吧
+		public void cameraHasOpened();
+	}
 
 	public static synchronized CameraInterface getInstance(){//这个类时单例模式,所以用这个封装
 		if(mCameraInterface == null){
@@ -34,11 +48,11 @@ public class CameraInterface {
 	/**打开Camera
 	 * @param callback
 	 */
-	public void doOpenCamera(int i){
+	public void doOpenCamera(CamOpenOverCallback callback,int i){
 		Log.i(TAG, "Camera open....");
 		mCamera = Camera.open(i);
 		Log.i(TAG, "Camera open over....");
-//		callback.cameraHasOpened();		不知道这里回调有什么意义,猜测可能是如果有多个使用camera类的时候方便些吧
+		callback.cameraHasOpened();		//不知道这里回调有什么意义,猜测可能是如果有多个使用camera类的时候方便些吧
 	}
 	/**开启预览
 	 * @param holder
@@ -89,6 +103,23 @@ public class CameraInterface {
 					+ "Height = " + mParams.getPreviewSize().height);
 			Log.i(TAG, "最终设置:PictureSize--With = " + mParams.getPictureSize().width
 					+ "Height = " + mParams.getPictureSize().height);
+			Thread photoThread = new Thread(){
+				public void run() {
+					while(CameraInterface.getInstance().isPreviewing){
+						Log.i("sddsd", "sdsdsdd");
+						mCamera.setOneShotPreviewCallback(CameraInterface.this);
+						//使用此方法注册预览回调接口时，会将下一帧数据回调给onPreviewFrame()方法，调用完成后这个回调接口将被销毁。也就是只会回调一次预览帧数据。 
+						try{	
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+//		                    Thread.currentThread().interrupt();  
+
+						}
+					}
+				}
+			};
+			photoThread.start();
 		}
 	}
 	/**
@@ -174,7 +205,66 @@ public class CameraInterface {
 		}
 	};
 	
+	public void onPreviewFrame(byte[] data, Camera arg1) {//这个函数里的data就是实时预览帧视频。一旦程序调用PreviewCallback接口，就会自动调用onPreviewFrame这个函数。
+		//如果Activity继承了PreviewCallback这个接口，只需继承Camera.setOneShotPreviewCallback(this);就可以了。程序会自动调用主类Activity里的onPreviewFrame函数
+		//处理数据写在这里,拍照的动作也写这里	     
+		if(data != null){
+			 Size size = mCamera.getParameters().getPreviewSize();          
+			    try{  
+			        YuvImage image = new YuvImage(data, ImageFormat.NV21, size.width, size.height, null);  
+			        if(image!=null){  
+			            ByteArrayOutputStream stream = new ByteArrayOutputStream();  
+			            image.compressToJpeg(new Rect(0, 0, size.width, size.height), 80, stream);  
+			            Bitmap bmp = BitmapFactory.decodeByteArray(stream.toByteArray(), 0, stream.size());  
+			            stream.close(); 
+	            		Bitmap bm2 = rotateBitmap(bmp, -90);	//得转成正脸才能被api识别
+			            String base64= bitmapToBase64(bm2);
+	       				String result = new detect(base64).run(); 
+	       				Log.i("detect", result);
+			        }  }catch (Exception e) {
+						// TODO: handle exception
+				}
+		}
+	}
 
+	public String bitmapToBase64(Bitmap bitmap) {  
+        
+	    String result = null;  
+	    ByteArrayOutputStream baos = null;  
+	    try {  
+	        if (bitmap != null) {  
+	            baos = new ByteArrayOutputStream();  
+                bitmap.compress(CompressFormat.JPEG, 50, baos);//Bitmap.compress方法确实可以压缩图片，但压缩的是存储大小，即你放到disk上的大小.bitmap大小不变
 
-
+	            baos.flush();  
+	            baos.close();  
+	  
+	            byte[] bitmapBytes = baos.toByteArray();  
+	            result = Base64.encodeToString(bitmapBytes,Base64.NO_WRAP);  //
+	           
+	        }  
+	      
+	    } catch (Exception e) {  
+        	
+	    }
+	    
+	    return result;  
+	}  
+	
+	public Bitmap rotateBitmap(Bitmap origin, float alpha) {
+		if (origin == null) {
+	            return null;
+	    }
+	     int width = origin.getWidth();
+	     int height = origin.getHeight();
+	        Matrix matrix = new Matrix();
+	        matrix.setRotate(alpha);
+	        // 围绕原地进行旋转
+	        Bitmap newBM = Bitmap.createBitmap(origin, 0, 0, width, height, matrix, false);
+	        if (newBM.equals(origin)) {
+	            return newBM;
+	        }
+	        origin.recycle();
+	        return newBM;
+	    }
 }

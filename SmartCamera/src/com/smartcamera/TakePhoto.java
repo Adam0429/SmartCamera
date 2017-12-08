@@ -1,5 +1,7 @@
 package com.smartcamera;
 
+import java.io.ByteArrayOutputStream;
+
 import javax.net.ssl.SSLException;
 
 import org.apache.http.entity.SerializableEntity;
@@ -9,11 +11,18 @@ import android.R.integer;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
 import android.graphics.Point;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
+import android.graphics.Bitmap.CompressFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
+import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.service.textservice.SpellCheckerService.Session;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.SurfaceHolder;
@@ -21,13 +30,16 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
+import api.detect;
 import helper.CameraInterface;
+import helper.CameraInterface.CamOpenOverCallback;
 import helper.CameraSurfaceView;
 import helper.DisplayUtil;
 import helper.FileUtil;
 
-public class TakePhoto extends Activity implements PreviewCallback{//继承了callback接口,说明这个类会被调用callback接口里的方法
+public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCallback{//继承了callback接口,说明这个类会被调用callback接口里的方法
 	private static final String TAG = "yanzi";
 	CameraSurfaceView surfaceView = null;
 	CameraInterface cameraInterface;
@@ -40,32 +52,34 @@ public class TakePhoto extends Activity implements PreviewCallback{//继承了callb
 		ca = getIntent().getIntExtra("para",1);
 		Thread openThread = new Thread(){//经过测试，但就执行Camera.open（）这句话一般需要140ms左右。如果放在主线程里无疑是一种浪费
 		public void run() {
-			CameraInterface.getInstance().doOpenCamera(ca);
-			cameraHasOpened();			
+			CameraInterface.getInstance().doOpenCamera(TakePhoto.this,ca);
 			}
 		};
 		openThread.start();
 
-		//使用此方法注册预览回调接口时，会将下一帧数据回调给onPreviewFrame()方法，调用完成后这个回调接口将被销毁。也就是只会回调一次预览帧数据。 
+//		Thread photoThread = new Thread(){
+//			public void run() {
+//				while(CameraInterface.getInstance().isPreviewing){
+//					Log.i("sddsd", "sdsdsdd");
+//					CameraInterface.getInstance().mCamera.setOneShotPreviewCallback(TakePhoto.this);
+//					//使用此方法注册预览回调接口时，会将下一帧数据回调给onPreviewFrame()方法，调用完成后这个回调接口将被销毁。也就是只会回调一次预览帧数据。 
+//					try{	
+//						Thread.sleep(1000);
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+////	                    Thread.currentThread().interrupt();  
+//
+//					}
+//				}
+//			}
+//		};
+//		photoThread.start();
+		
 		setContentView(com.smartcemera.R.layout.activity_take_photo);
 		initUI();
 		initViewParams();
-		Thread photoThread = new Thread(){
-			public void run() {
-				while(CameraInterface.getInstance().mCamera !=null && CameraInterface.getInstance().isPreviewing){
-					CameraInterface.getInstance().mCamera.setOneShotPreviewCallback(TakePhoto.this);//写进线程					try {
-					try{	
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-//	                    Thread.currentThread().interrupt();  
 
-					}
-				}
-			}
-		};
-		photoThread.start();
+		
 	}
 
 
@@ -91,7 +105,6 @@ public class TakePhoto extends Activity implements PreviewCallback{//继承了callb
 	}
 
 	public void cameraHasOpened() {
-		// TODO Auto-generated method stub
 		SurfaceHolder holder = surfaceView.getSurfaceHolder();
 		CameraInterface.getInstance().doStartPreview(holder, previewRate);
 	}
@@ -112,7 +125,7 @@ public class TakePhoto extends Activity implements PreviewCallback{//继承了callb
 		intent.putExtra("path", Integer.toString(path));	
 		intent.putExtra("camera", Integer.toString(ca));	
 		try {
-			Thread.sleep(1100);//之前立即就startactivity,会报错,猜测是因为存图还需要时间,所以那里一直不能获得,所以让他睡一会儿,300ms不够还可以再加
+			Thread.sleep(300);//之前立即就startactivity,会报错,猜测是因为存图还需要时间,所以那里一直不能获得,所以让他睡一会儿,300ms不够还可以再加
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -124,24 +137,45 @@ public class TakePhoto extends Activity implements PreviewCallback{//继承了callb
 
 
 
-	public void onPreviewFrame(byte[] arg0, Camera arg1) {//这个函数里的data就是实时预览帧视频。一旦程序调用PreviewCallback接口，就会自动调用onPreviewFrame这个函数。
+	public void onPreviewFrame(byte[] data, Camera arg1) {//这个函数里的data就是实时预览帧视频。一旦程序调用PreviewCallback接口，就会自动调用onPreviewFrame这个函数。
 		//如果Activity继承了PreviewCallback这个接口，只需继承Camera.setOneShotPreviewCallback(this);就可以了。程序会自动调用主类Activity里的onPreviewFrame函数
-//		  if(null != mFaceTask){
-//	            switch(mFaceTask.getStatus()){
-//	            case RUNNING:
-//	                return;
-//	            case PENDING:
-//	                mFaceTask.cancel(false);
-//	                break;
-//	            }
-//	        }
-//	        mFaceTask = new PalmTask(data);
-//	        mFaceTask.execute((Void)null);
-	
+		//处理数据写在这里,拍照的动作也写这里	           
+//		Bitmap bm = byteTobitmap(data);
+//		String base64= bitmapToBase64(bm);
+//		String result = new detect(base64).run(); 
+//		Log.i("detect", result);
+//		Toast.makeText(this, result, Toast.LENGTH_SHORT).show();   
+		
 	}
 
+	public String bitmapToBase64(Bitmap bitmap) {  
+        
+	    String result = null;  
+	    ByteArrayOutputStream baos = null;  
+	    try {  
+	        if (bitmap != null) {  
+	            baos = new ByteArrayOutputStream();  
+                bitmap.compress(CompressFormat.JPEG, 50, baos);//Bitmap.compress方法确实可以压缩图片，但压缩的是存储大小，即你放到disk上的大小.bitmap大小不变
 
-
+	            baos.flush();  
+	            baos.close();  
+	  
+	            byte[] bitmapBytes = baos.toByteArray();  
+	            result = Base64.encodeToString(bitmapBytes,Base64.NO_WRAP);  //
+	           
+	        }  
+	      
+	    } catch (Exception e) {  
+        	
+	    }
+	    
+	    return result;  
+	}  
+	
+	public Bitmap byteTobitmap(byte[] data){
+		return BitmapFactory.decodeByteArray(data, 0, data.length);
+	}
+	
 	
 	
 	
