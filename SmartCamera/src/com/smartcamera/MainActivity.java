@@ -47,7 +47,9 @@ import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import api.analyze;
 import api.detect;
+import helper.DataHelper;
 import helper.FileUtil;
+import helper.ImageUtil;
 
 public class MainActivity extends Activity {//加一个后台上传的代码
 	
@@ -59,7 +61,7 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 		ImageView mIV = (ImageView) findViewById(R.id.imageView1);
 		TextView textView = (TextView)findViewById(R.id.textView1);
 	    TextView textView2 = (TextView)findViewById(R.id.textView2);
-		Intent intent =getIntent();
+
 		if(getIntent().getStringExtra("path") != null){	    
 	    	 File file = new File(FileUtil.initPath()+"/"+getIntent().getStringExtra("path")+".jpg");
              if (file.exists()) {//如果太快进入的话,图还没存好，就要显示，会出错
@@ -71,9 +73,9 @@ public class MainActivity extends Activity {//加一个后台上传的代码
             	Bitmap bm1 = BitmapFactory.decodeFile(FileUtil.initPath()+"/"+getIntent().getStringExtra("path")+".jpg");
         		Bitmap bm2;
             	if(getIntent().getStringExtra("camera").equals("1"))
-            		bm2 = rotateBitmap(bm1, -90);
+            		bm2 = ImageUtil.RotateBitmap(bm1, -90);
             	else
-            		bm2 = rotateBitmap(bm1, 90);
+            		bm2 = ImageUtil.RotateBitmap(bm1, 90);
 
  	    		mIV.setImageBitmap(bm2); 
             
@@ -81,7 +83,7 @@ public class MainActivity extends Activity {//加一个后台上传的代码
     			if(detectresult.contains("face_token")){
     				String token = detectresult.split("face_token\": \"")[1].split("\"")[0];
     				String analyzeresult = new analyze(token).run();
-    				textView.setText(emotion(analyzeresult));
+    				textView.setText(DataHelper.SplitResult(analyzeresult,"smile"));
     			}
     			else if(detectresult.contains("INVALID_IMAGE_SIZE")||detectresult.contains("IMAGE_FILE_TOO_LARGE"))
     				textView.setText("图片大小不合适,请控制在2M以内");
@@ -139,6 +141,8 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 		final CheckBox checkBox = (CheckBox) layout.findViewById(R.id.checkBox1);
 		Button button = (Button) layout.findViewById(R.id.buttonpre);
 		Button button2 = (Button) layout.findViewById(R.id.buttonsmile);
+		Button button3 = (Button) layout.findViewById(R.id.buttonnormal);
+		
 		final Spinner Gender = (Spinner) layout.findViewById(R.id.Spinner01);
 		final Spinner EmotionSel = (Spinner) layout.findViewById(R.id.spinner2); 
 		button.setOnClickListener(new OnClickListener() {
@@ -151,11 +155,8 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 					intent.putExtra("Gender", "Male");
 				else 
 					intent.putExtra("Gender", Gender.getSelectedItem().toString());
-				
-				Log.i("gender", Gender.getSelectedItem().toString());
-
+				intent.putExtra("mode", "pre");
 				intent.putExtra("Emotion", EmotionSel.getSelectedItem().toString());
-
 				startActivity(intent);
 				
 			}
@@ -164,10 +165,19 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 		button2.setOnClickListener(new OnClickListener() {
 			
 			public void onClick(View arg0) {
-				intent.putExtra("smile", "1");
+				intent.putExtra("mode", "smile");
 				Log.i("smile","sm");
 				startActivity(intent);
 	
+			}
+		});
+		
+		button3.setOnClickListener(new OnClickListener() {
+			
+			public void onClick(View arg0) {
+				intent.putExtra("mode", "normal");
+				Log.i("normal","1");
+				startActivity(intent);
 			}
 		});
 	}
@@ -293,86 +303,7 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 		return BitmapFactory.decodeByteArray(data, 0, data.length);
 	}
 	
-	public Bitmap rotateBitmap(Bitmap origin, float alpha) {
-		if (origin == null) {
-	            return null;
-	    }
-	     int width = origin.getWidth();
-	     int height = origin.getHeight();
-	        Matrix matrix = new Matrix();
-	        matrix.setRotate(alpha);
-	        // 围绕原地进行旋转
-	        Bitmap newBM = Bitmap.createBitmap(origin, 0, 0, width, height, matrix, false);
-	        if (newBM.equals(origin)) {
-	            return newBM;
-	        }
-	        origin.recycle();
-	        return newBM;
-	    }
 	
-	public String SplitResult(String result,String attribute){
-		switch (attribute) {
-		case "sadness":
-			return "sadness" + result.split("sadness\":")[1].split(",")[0];
-		case "nautral":
-			return "neutral" + result.split("neutral\":")[1].split(",")[0];		
-		case "disgust":
-			return "disgust" + result.split("disgust\":")[1].split(",")[0];
-		case "anger":
-			return "anger" + result.split("anger\":")[1].split(",")[0];
-		case "surprise":
-			return "surprise" + result.split("surprise\":")[1].split(",")[0];
-		case "fear":
-			return "fear" + result.split("fear\":")[1].split(",")[0];
-		case "happiness":
-			String s = result.split("happiness\":")[1].split(",")[0]; 
-			s = s.substring(0,s.length()-1);
-			return "happiness" + s;
-		default:
-			break;
-		}
-		return "";
-	}
 	
-	public static String emotion(String result){//演示的时候记得说我在算法上下了功夫
-		String emotion = "";
-		float max = 0;
-		int index = -1;
-		float[] a = new float[7];
-		a[0] = Float.parseFloat(result.split("sadness\":")[1].split(",")[0]);
-		a[1] = Float.parseFloat(result.split("neutral\":")[1].split(",")[0]);
-		a[2] = Float.parseFloat(result.split("disgust\":")[1].split(",")[0]);
-		a[3] = Float.parseFloat(result.split("anger\":")[1].split(",")[0]);
-		a[4] = Float.parseFloat(result.split("surprise\":")[1].split(",")[0]);
-		String s = result.split("happiness\":")[1].split(",")[0]; 
-		s = s.substring(0,s.length()-1);
-		a[5] = Float.parseFloat(s);
-		a[6] = Float.parseFloat(result.split("fear\":")[1].split(",")[0]);
-		for(int i = 0 ; i <= 6 ; i++){
-			if(a[i]>max){
-				index = i;
-				max = a[i];
-			}
-		}
-		switch (index) {
-		case 0:
-			return "sadness";
-		case 1:
-			return "neutral";
-		case 2:
-			return "disgust";
-		case 3:
-			return "anger";
-		case 4:
-			return "surprise";
-		case 5:
-			return "happiness";
-		case 6:
-			return "fear";
-		default:
-			break;
-		}
-		return "";
-		
-	}
+	
 }

@@ -44,6 +44,7 @@ public class FileUtil {
 		try {
 			FileOutputStream fout = new FileOutputStream(jpegName);
 			BufferedOutputStream bos = new BufferedOutputStream(fout);
+//			Bitmap b2 = ImageUtil.RotateBitmap(b, -90);
 			b.compress(Bitmap.CompressFormat.JPEG, 100, bos);
 			bos.flush();
 			bos.close();

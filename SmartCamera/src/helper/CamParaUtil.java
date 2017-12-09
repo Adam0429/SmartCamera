@@ -25,7 +25,7 @@ public class CamParaUtil {
 		}
 	}
 
-	public  Size getPropPreviewSize(List<Camera.Size> list, float th, int minWidth){
+	public Size getPropPreviewSize(List<Camera.Size> list, float th, int minWidth){
 		Collections.sort(list, sizeComparator);
 
 		int i = 0;

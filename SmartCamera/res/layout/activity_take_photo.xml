@@ -3,7 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".CameraActivity" >
+
     <FrameLayout
+        android:id="@+id/frameLayout1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" >
 
@@ -13,12 +15,19 @@
             android:layout_height="0dip" />
     </FrameLayout>
 
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:text="information" />
+
     <ImageButton
         android:id="@+id/btn_shutter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/smile" 
- 	 	android:onClick="shuttle"/>
+        android:background="@drawable/smile"
+        android:onClick="shuttle" />
 
 </RelativeLayout>

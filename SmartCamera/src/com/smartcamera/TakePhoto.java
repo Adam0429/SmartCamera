@@ -33,10 +33,12 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import api.analyze;
 import api.detect;
 import helper.CameraInterface;
 import helper.CameraInterface.CamOpenOverCallback;
 import helper.CameraSurfaceView;
+import helper.DataHelper;
 import helper.DisplayUtil;
 import helper.FileUtil;
 
@@ -46,15 +48,19 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 	CameraInterface cameraInterface;
 	ImageButton shutterBtn;
 	float previewRate = -1f;
-	int ca;
+	String mode;
+	int cameramode;
 	boolean check = true;		//用来控制线程的,我发现让线程interrupt不能达到我的目的
 	@Override
+	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		ca = getIntent().getIntExtra("para",1);
+		mode = getIntent().getStringExtra("mode");
+		Log.i("mode", mode);
+		cameramode = getIntent().getIntExtra("para",1);
 		Thread openThread = new Thread(){//经过测试，但就执行Camera.open（）这句话一般需要140ms左右。如果放在主线程里无疑是一种浪费
 		public void run() {
-			CameraInterface.getInstance().doOpenCamera(TakePhoto.this,ca);
+			CameraInterface.getInstance().doOpenCamera(TakePhoto.this,cameramode);
 			}
 		};
 		openThread.start();
@@ -65,11 +71,11 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 		
 		Thread photoThread = new Thread(){
 			public void run() {
-				while(check){
-				if(CameraInterface.getInstance().isPreviewing){					
+				while(check){		//normal是自己拍
+					if(CameraInterface.getInstance().isPreviewing){					
 						CameraInterface.getInstance().mCamera.setOneShotPreviewCallback(TakePhoto.this);
 					}
-				else 
+					else 
 					Log.i("cam", "not previewing");
 //					//使用此方法注册预览回调接口时，会将下一帧数据回调给onPreviewFrame()方法，调用完成后这个回调接口将被销毁。也就是只会回调一次预览帧数据。 
 					try{	
@@ -117,11 +123,10 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 		int path = FileUtil.DirNumeber(FileUtil.initPath());	
 		Intent intent = new Intent(this,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);			
 		intent.putExtra("path", Integer.toString(path));	
-		intent.putExtra("camera", Integer.toString(ca));	
+		intent.putExtra("camera", Integer.toString(cameramode));	
 		try {
 			Thread.sleep(1100);//之前立即就startactivity,会报错,猜测是因为存图还需要时间,所以那里一直不能获得,所以让他睡一会儿,300ms不够还可以再加
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}//延迟3s，时间自己定
 		startActivity(intent);			
@@ -147,12 +152,28 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 			            else 
 			            	bm2 = rotateBitmap(bmp, 90);
 			            String base64= bitmapToBase64(bm2);
-	       				String result = new detect(base64).run(); 
-	       				Log.i("detect", result);
-	       				check = false;
-	       				if(result.contains("face_token")){
-	       					shuttle(surfaceView); //不知道传这个view行不行，因为shuttle中必须有view
+	       				String detectresult = new detect(base64).run(); 
+//	       				Log.i("detect", detectresult);
+	       				TextView textView = (TextView) findViewById(com.smartcemera.R.id.textView1);
+	       				textView.setText(detectresult);
+	       				String analyzeresult = "";
+	       				if(detectresult.contains("face_token")){
+	       					String token = detectresult.split("face_token\": \"")[1].split("\"")[0];
+       						analyzeresult = new analyze(token).run();
+       						textView.setText(analyzeresult);
 	       				}
+	       				
+	       					
+	       						Log.i("enter smile mode!!!","");
+	       						if(analyzeresult != ""){
+	       							Log.i("smile!!!!",DataHelper.SplitResult(analyzeresult, "smile"));
+	       						if(DataHelper.SplitResult(analyzeresult, "smile") != ""){
+	    	       					shuttle(surfaceView);
+	       		       				check = false;
+	       							//不知道传这个view行不行，因为shuttle中必须有view
+	       						}
+	       					}
+	       				
 			        }  }catch (Exception e) {
 						// TODO: handle exception
 				}
