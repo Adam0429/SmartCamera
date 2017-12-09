@@ -2,12 +2,6 @@ package com.smartcamera;
 
 import java.io.ByteArrayOutputStream;
 
-import javax.net.ssl.SSLException;
-
-import org.apache.http.entity.SerializableEntity;
-
-import android.R;
-import android.R.integer;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -41,9 +35,10 @@ import helper.CameraSurfaceView;
 import helper.DataHelper;
 import helper.DisplayUtil;
 import helper.FileUtil;
+import helper.ImageUtil;
 
 public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCallback{//继承了callback接口,说明这个类会被调用callback接口里的方法
-	private static final String TAG = "yanzi";
+	private static final String TAG = "takephoto";
 	CameraSurfaceView surfaceView = null;
 	CameraInterface cameraInterface;
 	ImageButton shutterBtn;
@@ -118,7 +113,7 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 	}
 	
 	public void shuttle(View v){
-		check = false;
+		check = false;		//停止预览线程
 		CameraInterface.getInstance().doTakePicture();
 		int path = FileUtil.DirNumeber(FileUtil.initPath());	
 		Intent intent = new Intent(this,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);			
@@ -148,12 +143,12 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 			            stream.close(); 
 			            Bitmap bm2;
 			            if(getIntent().getIntExtra("para",1) == 1)
-			            	bm2 = rotateBitmap(bmp, -90);	//得转成正脸才能被api识别
+			            	bm2 = ImageUtil.RotateBitmap(bmp, -90);	//得转成正脸才能被api识别
 			            else 
-			            	bm2 = rotateBitmap(bmp, 90);
+			            	bm2 = ImageUtil.RotateBitmap(bmp, 90);
 			            String base64= bitmapToBase64(bm2);
 	       				String detectresult = new detect(base64).run(); 
-//	       				Log.i("detect", detectresult);
+	       				Log.i("detect", detectresult);
 	       				TextView textView = (TextView) findViewById(com.smartcemera.R.id.textView1);
 	       				textView.setText(detectresult);
 	       				String analyzeresult = "";
@@ -162,18 +157,16 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
        						analyzeresult = new analyze(token).run();
        						textView.setText(analyzeresult);
 	       				}
-	       				
-	       					
-	       						Log.i("enter smile mode!!!","");
-	       						if(analyzeresult != ""){
-	       							Log.i("smile!!!!",DataHelper.SplitResult(analyzeresult, "smile"));
-	       						if(DataHelper.SplitResult(analyzeresult, "smile") != ""){
-	    	       					shuttle(surfaceView);
-	       		       				check = false;
-	       							//不知道传这个view行不行，因为shuttle中必须有view
-	       						}
+	       				Log.i("!!!!!!!!!",mode);
+	       				if(mode.equals("smile")){//进不去
+	       					if(DataHelper.SplitResult(analyzeresult, "smile") != ""){
+	       						shuttle(surfaceView);
+	       							//不知道传这个view行不行，因为shuttle中必须有view	
 	       					}
-	       				
+	       				}
+	       				if(mode.equals("pre")){
+	       					
+	       				}
 			        }  }catch (Exception e) {
 						// TODO: handle exception
 				}
@@ -206,23 +199,6 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 	public Bitmap byteTobitmap(byte[] data){
 		return BitmapFactory.decodeByteArray(data, 0, data.length);
 	}
-	
-	public Bitmap rotateBitmap(Bitmap origin, float alpha) {
-		if (origin == null) {
-	            return null;
-	    }
-	     int width = origin.getWidth();
-	     int height = origin.getHeight();
-	        Matrix matrix = new Matrix();
-	        matrix.setRotate(alpha);
-	        // 围绕原地进行旋转
-	        Bitmap newBM = Bitmap.createBitmap(origin, 0, 0, width, height, matrix, false);
-	        if (newBM.equals(origin)) {
-	            return newBM;
-	        }
-	        origin.recycle();
-	        return newBM;
-	    }
 	
 	
 	

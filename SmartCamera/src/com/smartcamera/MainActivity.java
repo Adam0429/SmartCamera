@@ -166,7 +166,6 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 			
 			public void onClick(View arg0) {
 				intent.putExtra("mode", "smile");
-				Log.i("smile","sm");
 				startActivity(intent);
 	
 			}
