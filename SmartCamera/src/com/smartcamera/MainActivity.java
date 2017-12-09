@@ -8,8 +8,11 @@ import java.io.IOException;
 import com.smartcemera.R;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -18,19 +21,30 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.media.ThumbnailUtils;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import api.analyze;
 import api.detect;
 import helper.FileUtil;
@@ -80,19 +94,22 @@ public class MainActivity extends Activity {//加一个后台上传的代码
              }
 		}
 	        	
-//		if(getIntent().getByteArrayExtra("picture") != null){
-////			byte[] b = getIntent().getByteArrayExtra("picture");
-//			Bitmap bitmap = byteTobitmap(getIntent().getByteArrayExtra("picture"));
-//			ImageView mIV = (ImageView) findViewById(R.id.imageView1);
-////			mIV.setImageBitmap(bitmap); 
-//	    
-//	    	
-// 	    			mIV.setImageBitmap(bitmap); 
-//          
-//		}
+		isNetworkConnected(this);
 	
 	}
 
+	public static void isNetworkConnected(Context context) {
+		if (context != null) {
+			ConnectivityManager mConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo mNetworkInfo = mConnectivityManager.getActiveNetworkInfo();
+			if (mNetworkInfo != null) {
+				Toast.makeText(context, "有网",Toast.LENGTH_SHORT).show();
+			}
+			else 
+				Toast.makeText(context, "无网",Toast.LENGTH_SHORT).show();;
+		}
+	}
+	
 	public void upload(View view){
 	      Intent intent = new Intent(Intent.ACTION_GET_CONTENT).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);//销毁前一个intent防止过多的界面  
 	      intent.setType("image/*");//设置类型
@@ -103,14 +120,56 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 	public void camera(View view){
 		Intent intent = new Intent(this, TakePhoto.class);
 		intent.putExtra("para", 0);
-		startActivity(intent);
+//		startActivity(intent);
 
 	}
 	
 	public void camera2(View view){
-		Intent intent = new Intent(this, TakePhoto.class);
+		
+		final Intent intent = new Intent(this, TakePhoto.class);
 		intent.putExtra("para", 1);
-		startActivity(intent);
+//		startActivity(intent);
+		
+		LayoutInflater inflater = getLayoutInflater();//将xml转换成一个View对象，用于动态的创建布局
+		View layout = inflater.inflate(R.layout.insert_dialog,null);
+
+		new AlertDialog.Builder(this).setTitle("Choose Preference").setView(layout)
+		.setNegativeButton("Cancel", null).show();
+
+		final CheckBox checkBox = (CheckBox) layout.findViewById(R.id.checkBox1);
+		Button button = (Button) layout.findViewById(R.id.buttonpre);
+		Button button2 = (Button) layout.findViewById(R.id.buttonsmile);
+		final Spinner Gender = (Spinner) layout.findViewById(R.id.Spinner01);
+		final Spinner EmotionSel = (Spinner) layout.findViewById(R.id.spinner2); 
+		button.setOnClickListener(new OnClickListener() {
+			public void onClick(View arg0) {
+				if(checkBox.isChecked()){
+					intent.putExtra("beau", "1");
+					Log.i("beau", "1");
+				}
+				if(Gender.getSelectedItem().toString() == "")
+					intent.putExtra("Gender", "Male");
+				else 
+					intent.putExtra("Gender", Gender.getSelectedItem().toString());
+				
+				Log.i("gender", Gender.getSelectedItem().toString());
+
+				intent.putExtra("Emotion", EmotionSel.getSelectedItem().toString());
+
+				startActivity(intent);
+				
+			}
+		});
+		
+		button2.setOnClickListener(new OnClickListener() {
+			
+			public void onClick(View arg0) {
+				intent.putExtra("smile", "1");
+				Log.i("smile","sm");
+				startActivity(intent);
+	
+			}
+		});
 	}
 	
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -263,6 +322,8 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 			return "anger" + result.split("anger\":")[1].split(",")[0];
 		case "surprise":
 			return "surprise" + result.split("surprise\":")[1].split(",")[0];
+		case "fear":
+			return "fear" + result.split("fear\":")[1].split(",")[0];
 		case "happiness":
 			String s = result.split("happiness\":")[1].split(",")[0]; 
 			s = s.substring(0,s.length()-1);
@@ -277,7 +338,7 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 		String emotion = "";
 		float max = 0;
 		int index = -1;
-		float[] a = new float[6];
+		float[] a = new float[7];
 		a[0] = Float.parseFloat(result.split("sadness\":")[1].split(",")[0]);
 		a[1] = Float.parseFloat(result.split("neutral\":")[1].split(",")[0]);
 		a[2] = Float.parseFloat(result.split("disgust\":")[1].split(",")[0]);
@@ -286,7 +347,8 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 		String s = result.split("happiness\":")[1].split(",")[0]; 
 		s = s.substring(0,s.length()-1);
 		a[5] = Float.parseFloat(s);
-		for(int i = 0 ; i < 6 ; i++){
+		a[6] = Float.parseFloat(result.split("fear\":")[1].split(",")[0]);
+		for(int i = 0 ; i <= 6 ; i++){
 			if(a[i]>max){
 				index = i;
 				max = a[i];
@@ -305,6 +367,8 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 			return "surprise";
 		case 5:
 			return "happiness";
+		case 6:
+			return "fear";
 		default:
 			break;
 		}

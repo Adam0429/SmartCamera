@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="emotionarr">
+   		<item>sadness</item>  
+  	 	<item>neural</item>  
+    	<item>disgust</item>  
+    	<item>anger</item>
+    	<item>fear</item>
+    	<item>surprise</item>
+    	<item>happiness</item>  
+    </string-array>
+     <string-array name="genderarr">
+   		<item>Male</item>  
+  	 	<item>Female</item>   
+    </string-array>
+</resources>

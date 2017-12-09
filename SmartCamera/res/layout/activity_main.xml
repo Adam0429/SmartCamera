@@ -43,30 +43,38 @@
                     android:layout_marginTop="10dp"
                     android:src="@drawable/ic_launcher" />
 
-                <Button
-                    android:id="@+id/button1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="upload"
-                    android:text="upload" />
-
-                <Button
-                    android:id="@+id/button2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="camera"
-                    android:text="后置摄像头" />
-
-                <Button
-                    android:id="@+id/button3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="camera2"
-                    android:text="自拍" />
-
             </LinearLayout>
         </LinearLayout>
 
     </ScrollView>
+
+    <Button
+        android:id="@+id/buttonsmile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/button2"
+        android:layout_alignTop="@+id/scrollView1"
+        android:onClick="upload"
+        android:text="upload" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/spinner2"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="14dp"
+        android:onClick="camera"
+        android:text="后置摄像头" />
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/button2"
+        android:layout_alignLeft="@+id/buttonsmile"
+        android:onClick="camera2"
+        android:text="自拍" />
+
 
 </RelativeLayout>
