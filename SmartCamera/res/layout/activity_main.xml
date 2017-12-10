@@ -8,76 +8,67 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.smartcamera.MainActivity" >
 
-    <ScrollView
-        android:id="@+id/scrollView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical" >
-
-            <LinearLayout
-                android:id="@+id/linearLayout1"
-                android:layout_width="match_parent"
-                android:layout_height="350dp"
-                android:orientation="vertical" >
-
-                <TextView
-                    android:id="@+id/textView1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="人脸识别" />
-
-                <TextView
-                    android:id="@+id/textView2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <ImageView
-                    android:id="@+id/imageView1"
-                    android:layout_width="200dp"
-                    android:layout_height="300dp"
-                    android:layout_marginRight="56dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_weight="26.21"
-                    android:src="@drawable/ic_launcher" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </ScrollView>
-
     <Button
         android:id="@+id/button3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/buttonsmile"
-        android:layout_below="@+id/scrollView1"
+        android:layout_width="80dp"
+        android:layout_height="200dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/buttonsmile"
+        android:layout_marginTop="0dp"
+        android:background="#ccffff"
         android:onClick="camera2"
-        android:text="自拍" />
+        android:text="FRONT CAMERA" />
+
+    <Button
+        android:id="@+id/buttonsmile"
+        android:layout_width="145dp"
+        android:layout_height="120dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/button3"
+        android:background="#3333ff"
+        android:onClick="upload"
+        android:text="UPLOAD" />
 
     <Button
         android:id="@+id/button2"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/button3"
-        android:layout_alignBottom="@+id/button3"
-        android:layout_marginRight="18dp"
-        android:layout_toLeftOf="@+id/buttonsmile"
+        android:layout_height="200dp"
+        android:layout_alignLeft="@+id/button3"
+        android:layout_alignRight="@+id/button3"
+        android:layout_below="@+id/button3"
+        android:background="#9966ff"
         android:onClick="camera"
-        android:text="后置摄像头" />
+        android:text="BACK CAMERA" />
 
-    <Button
-        android:id="@+id/buttonsmile"
+    <TextView
+        android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@+id/scrollView1"
-        android:layout_marginRight="15dp"
-        android:layout_marginTop="101dp"
-        android:onClick="upload"
-        android:text="upload" />
+        android:layout_alignBottom="@+id/textView2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignTop="@+id/imageView1"
+        android:layout_toLeftOf="@+id/imageView1"
+        android:background="#CCCCFF"
+        android:text="no result" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/button2"
+        android:layout_alignLeft="@+id/imageView1"
+        android:layout_alignRight="@+id/imageView1"
+        android:layout_below="@+id/imageView1"
+        android:background="#99FFFF"
+        android:text="No error" />
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="130dp"
+        android:layout_height="140dp"
+        android:layout_alignRight="@+id/buttonsmile"
+        android:layout_below="@+id/buttonsmile"
+        android:background="#33ccff" />
 
 </RelativeLayout>

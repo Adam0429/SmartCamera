@@ -105,10 +105,10 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 			ConnectivityManager mConnectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 			NetworkInfo mNetworkInfo = mConnectivityManager.getActiveNetworkInfo();
 			if (mNetworkInfo != null) {
-				Toast.makeText(context, "有网",Toast.LENGTH_SHORT).show();
+				Toast.makeText(context, "Internet running",Toast.LENGTH_SHORT).show();
 			}
 			else 
-				Toast.makeText(context, "无网",Toast.LENGTH_SHORT).show();;
+				Toast.makeText(context, "No Internet",Toast.LENGTH_SHORT).show();;
 		}
 	}
 	
@@ -120,11 +120,62 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 	}
 	
 	public void camera(View view){
-		Intent intent = new Intent(this, TakePhoto.class);
-		intent.putExtra("para", 0);
+		final Intent intent = new Intent(this, TakePhoto.class);
+		intent.putExtra("para", 1);
 //		startActivity(intent);
+		
+		LayoutInflater inflater = getLayoutInflater();//将xml转换成一个View对象，用于动态的创建布局
+		View layout = inflater.inflate(R.layout.insert_dialog,null);
 
+		new AlertDialog.Builder(this).setTitle("Choose Preference").setView(layout)
+		.setNegativeButton("Cancel", null).show();
+
+		final CheckBox checkBox = (CheckBox) layout.findViewById(R.id.checkBox1);
+		Button button = (Button) layout.findViewById(R.id.buttonpre);
+		Button button2 = (Button) layout.findViewById(R.id.buttonsmile);
+		Button button3 = (Button) layout.findViewById(R.id.buttonnormal);
+		
+		final Spinner Gender = (Spinner) layout.findViewById(R.id.Spinner01);
+		final Spinner EmotionSel = (Spinner) layout.findViewById(R.id.spinner2); 
+		button.setOnClickListener(new OnClickListener() {
+			public void onClick(View arg0) {
+				if(checkBox.isChecked()){
+					intent.putExtra("beau", "1");
+					Log.i("beau", "1");
+				}
+				else
+					intent.putExtra("beau", "0");
+				if(Gender.getSelectedItem().toString() == "")
+					intent.putExtra("Gender", "Male");
+				else 
+					intent.putExtra("Gender", Gender.getSelectedItem().toString());
+				intent.putExtra("mode", "pre");
+				intent.putExtra("Emotion", EmotionSel.getSelectedItem().toString());
+				startActivity(intent);
+				
+			}
+		});
+		
+		button2.setOnClickListener(new OnClickListener() {
+			
+			public void onClick(View arg0) {
+				intent.putExtra("mode", "smile");
+				startActivity(intent);
+	
+			}
+		});
+		
+		button3.setOnClickListener(new OnClickListener() {
+			
+			public void onClick(View arg0) {
+				intent.putExtra("mode", "normal");
+				Log.i("normal","1");
+				startActivity(intent);
+			}
+		});
 	}
+	
+	
 	
 	public void camera2(View view){
 		

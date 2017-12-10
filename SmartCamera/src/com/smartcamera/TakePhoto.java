@@ -146,7 +146,7 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 			            	bm2 = ImageUtil.RotateBitmap(bmp, -90);	//得转成正脸才能被api识别
 			            else 
 			            	bm2 = ImageUtil.RotateBitmap(bmp, 90);
-			            String base64= bitmapToBase64(bm2);
+			            String base64= ImageUtil.bitmapToBase64(bm2);
 	       				String detectresult = new detect(base64).run(); 
 	       				Log.i("detect", detectresult);
 	       				TextView textView = (TextView) findViewById(com.smartcemera.R.id.textView1);
@@ -158,14 +158,16 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
        						textView.setText(analyzeresult);
 	       				}
 	       				Log.i("!!!!!!!!!",mode);
-	       				if(mode.equals("smile")){//进不去
+	       				if(mode.equals("smile")){
 	       					if(DataHelper.SplitResult(analyzeresult, "smile") != ""){
-	       						shuttle(surfaceView);
-	       							//不知道传这个view行不行，因为shuttle中必须有view	
+	       						shuttle(surfaceView);//不知道传这个view行不行，因为shuttle中必须有view	
 	       					}
 	       				}
 	       				if(mode.equals("pre")){
-	       					
+	       					String emotion = getIntent().getStringExtra("emotion");
+	       					String gender = getIntent().getStringExtra("Gender");
+	       					String beau = getIntent().getStringExtra("beau");
+
 	       				}
 			        }  }catch (Exception e) {
 						// TODO: handle exception
@@ -173,32 +175,6 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 		}
 	}
 
-	public String bitmapToBase64(Bitmap bitmap) {  
-	    String result = null;  
-	    ByteArrayOutputStream baos = null;  
-	    try {  
-	        if (bitmap != null) {  
-	            baos = new ByteArrayOutputStream();  
-                bitmap.compress(CompressFormat.JPEG, 50, baos);//Bitmap.compress方法确实可以压缩图片，但压缩的是存储大小，即你放到disk上的大小.bitmap大小不变
-
-	            baos.flush();  
-	            baos.close();  
-	  
-	            byte[] bitmapBytes = baos.toByteArray();  
-	            result = Base64.encodeToString(bitmapBytes,Base64.NO_WRAP);  //
-	           
-	        }  
-	      
-	    } catch (Exception e) {  
-        	
-	    }
-	    
-	    return result;  
-	}  
-	
-	public Bitmap byteTobitmap(byte[] data){
-		return BitmapFactory.decodeByteArray(data, 0, data.length);
-	}
 	
 	
 	
