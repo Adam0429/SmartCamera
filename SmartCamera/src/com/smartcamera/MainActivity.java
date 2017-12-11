@@ -26,6 +26,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.ContactsContract.Contacts.Data;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -83,12 +84,11 @@ public class MainActivity extends Activity {//加一个后台上传的代码
     			if(detectresult.contains("face_token")){
     				String token = detectresult.split("face_token\": \"")[1].split("\"")[0];
     				String analyzeresult = new analyze(token).run();
-    				textView.setText(DataHelper.SplitResult(analyzeresult,"gender"));
+    				textView.setText(DataHelper.SplitResult(analyzeresult, "all"));
     			}
     			else if(detectresult.contains("INVALID_IMAGE_SIZE")||detectresult.contains("IMAGE_FILE_TOO_LARGE"))
     				textView.setText("图片大小不合适,请控制在2M以内");
     			else{
-    				textView.setText("");
     				textView2.setText("错误报告:");
     				textView2.append(detectresult);
     			}
@@ -124,7 +124,7 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 		//addflags会销毁原来的activity，但是这里销毁会导致activity比dialog销毁的早，然后调用到dialog的方法时会发现没有activity依附
 		final Intent intent = new Intent(this, TakePhoto.class);
 
-		intent.putExtra("para", 1);
+		intent.putExtra("para", 0);
 //		startActivity(intent);
 		
 		LayoutInflater inflater = getLayoutInflater();//将xml转换成一个View对象，用于动态的创建布局
@@ -275,14 +275,13 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 	    			Toast.makeText(this, originalUri.toString(), Toast.LENGTH_SHORT).show();   	
 					Log.i("读照片",originalUri.toString());
 
-	    			textView.append(originalUri.toString());
 	    			bm = MediaStore.Images.Media.getBitmap(resolver, originalUri);        //得到bitmap图片
 	    			mIV.setImageBitmap(ThumbnailUtils.extractThumbnail(bm, 500, 500)); 
 
 	    			String detectresult = new detect(bitmapToBase64(bm)).run();
 	    			if(detectresult.contains("face_token")){
 	    				String token = detectresult.split("face_token\": \"")[1].split("\"")[0];
-	    				textView.setText(DataHelper.SplitResult(new analyze(token).run(),"gender"));
+	    				textView.setText(DataHelper.SplitResult(new analyze(token).run(),"all"));
 	    			}
 	    			else if(detectresult.contains("INVALID_IMAGE_SIZE")||detectresult.contains("IMAGE_FILE_TOO_LARGE"))
 	    				textView.setText("图片大小不合适,请控制在2M以内");

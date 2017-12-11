@@ -71,7 +71,7 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 						CameraInterface.getInstance().mCamera.setOneShotPreviewCallback(TakePhoto.this);
 					}
 					else 
-					Log.i("cam", "not previewing");
+						Log.i("cam", "not previewing");
 //					//使用此方法注册预览回调接口时，会将下一帧数据回调给onPreviewFrame()方法，调用完成后这个回调接口将被销毁。也就是只会回调一次预览帧数据。 
 					try{	
 						Thread.sleep(1000);
@@ -120,7 +120,7 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 		intent.putExtra("path", Integer.toString(path));	
 		intent.putExtra("camera", Integer.toString(cameramode));	
 		try {
-			Thread.sleep(1100);//之前立即就startactivity,会报错,猜测是因为存图还需要时间,所以那里一直不能获得,所以让他睡一会儿,300ms不够还可以再加
+			Thread.sleep(300);//之前立即就startactivity,会报错,猜测是因为存图还需要时间,所以那里一直不能获得,所以让他睡一会儿,300ms不够还可以再加
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}//延迟3s，时间自己定
@@ -173,20 +173,20 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 	       					String beau = getIntent().getStringExtra("beau");
 	       					String nowemotion = DataHelper.emotion(analyzeresult);
 	       					String nowgender = DataHelper.SplitResult(analyzeresult,"gender");
-	       					
-//	       					if(beau.equals("1")){
-//	       						if(DataHelper.emotion(analyzeresult).equals(emotion) && gender.equals(DataHelper.emotion("gender"))){
-//	       							shuttle(surfaceView);//不知道传这个view行不行，因为shuttle中必须有view	
-//	       						}
-//	       					}
-//	       					else {
+       						float beauscore = Float.parseFloat(DataHelper.SplitResult(analyzeresult,"beau"));
+
+	       					if(beau.equals("1")){
+	       						if(DataHelper.emotion(analyzeresult).equals(emotion) && gender.equals(DataHelper.emotion("gender"))&&beauscore>70){
+	       							shuttle(surfaceView);//不知道传这个view行不行，因为shuttle中必须有view	
+	       						}
+	       					}
+	       					else {
 	       						if(gender.equals(nowgender)&&emotion.equals(nowemotion)){
 	       							shuttle(surfaceView);
 	       						}
-//	       					}
+	       					}
 	       				}
 			        }  }catch (Exception e) {
-						// TODO: handle exception
 				}
 		}
 	}
