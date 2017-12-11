@@ -183,8 +183,8 @@ public class CameraInterface{
 
 			}
 			//再次进入预览
-			mCamera.startPreview();
-			isPreviewing = true;
+//			mCamera.startPreview();
+//			isPreviewing = true;
 
 		}
 	};

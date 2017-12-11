@@ -1,11 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:layout_height="match_parent" 
     tools:context="com.smartcamera.MainActivity" >
 
     <Button
@@ -18,17 +14,6 @@
         android:background="#ccffff"
         android:onClick="camera2"
         android:text="FRONT CAMERA" />
-
-    <Button
-        android:id="@+id/buttonsmile"
-        android:layout_width="145dp"
-        android:layout_height="120dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/button3"
-        android:background="#3333ff"
-        android:onClick="upload"
-        android:text="UPLOAD" />
 
     <Button
         android:id="@+id/button2"
@@ -49,7 +34,6 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignTop="@+id/imageView1"
-        android:layout_toLeftOf="@+id/textView2"
         android:background="#CCCCFF"
         android:text="no result" />
 
@@ -76,6 +60,18 @@
         android:layout_height="240dp"
         android:layout_below="@+id/buttonsmile"
         android:layout_toLeftOf="@+id/button3"
+        android:layout_toRightOf="@+id/textView1"
         android:background="#33ccff" />
+
+    <Button
+        android:id="@+id/buttonsmile"
+        android:layout_width="145dp"
+        android:layout_height="120dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/imageView1"
+        android:background="#3333ff"
+        android:onClick="upload"
+        android:text="UPLOAD" />
 
 </RelativeLayout>
