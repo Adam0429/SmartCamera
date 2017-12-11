@@ -83,7 +83,7 @@ public class MainActivity extends Activity {//加一个后台上传的代码
     			if(detectresult.contains("face_token")){
     				String token = detectresult.split("face_token\": \"")[1].split("\"")[0];
     				String analyzeresult = new analyze(token).run();
-    				textView.setText(DataHelper.SplitResult(analyzeresult,"smile"));
+    				textView.setText(DataHelper.SplitResult(analyzeresult,"gender"));
     			}
     			else if(detectresult.contains("INVALID_IMAGE_SIZE")||detectresult.contains("IMAGE_FILE_TOO_LARGE"))
     				textView.setText("图片大小不合适,请控制在2M以内");
@@ -120,7 +120,10 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 	}
 	
 	public void camera(View view){
+//		final Intent intent = new Intent(this, TakePhoto.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		//addflags会销毁原来的activity，但是这里销毁会导致activity比dialog销毁的早，然后调用到dialog的方法时会发现没有activity依附
 		final Intent intent = new Intent(this, TakePhoto.class);
+
 		intent.putExtra("para", 1);
 //		startActivity(intent);
 		
@@ -143,8 +146,6 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 					intent.putExtra("beau", "1");
 					Log.i("beau", "1");
 				}
-				else
-					intent.putExtra("beau", "0");
 				if(Gender.getSelectedItem().toString() == "")
 					intent.putExtra("Gender", "Male");
 				else 
@@ -179,7 +180,10 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 	
 	public void camera2(View view){
 		
+//		final Intent intent = new Intent(this, TakePhoto.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		//addflags会销毁原来的activity，但是这里销毁会导致activity比dialog销毁的早，然后调用到dialog的方法时会发现没有activity依附
 		final Intent intent = new Intent(this, TakePhoto.class);
+
 		intent.putExtra("para", 1);
 //		startActivity(intent);
 		
@@ -278,7 +282,7 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 	    			String detectresult = new detect(bitmapToBase64(bm)).run();
 	    			if(detectresult.contains("face_token")){
 	    				String token = detectresult.split("face_token\": \"")[1].split("\"")[0];
-	    				textView.setText(new analyze(token).run());
+	    				textView.setText(DataHelper.SplitResult(new analyze(token).run(),"gender"));
 	    			}
 	    			else if(detectresult.contains("INVALID_IMAGE_SIZE")||detectresult.contains("IMAGE_FILE_TOO_LARGE"))
 	    				textView.setText("图片大小不合适,请控制在2M以内");
@@ -305,20 +309,20 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 	    	}       
 	    }
 
-	    if(requestCode == 2){
-	    	 if(data != null){  
-	                Bundle extras = data.getExtras();  
-	                if(extras != null){  
-	                    Bitmap imageBitmap = (Bitmap) extras.get("data");  
-	                    mIV.setImageBitmap(imageBitmap);  
-	                }else{  
-//	                    Log.d(tag,"no Bitmap return");  
-	                }  
-	            }else{  
-//	                Log.d(tag,"data is null");  
-	            }  
-	          
-	    }
+//	    if(requestCode == 2){
+//	    	 if(data != null){  
+//	                Bundle extras = data.getExtras();  
+//	                if(extras != null){  
+//	                    Bitmap imageBitmap = (Bitmap) extras.get("data");  
+//	                    mIV.setImageBitmap(imageBitmap);  
+//	                }else{  
+////	                    Log.d(tag,"no Bitmap return");  
+//	                }  
+//	            }else{  
+////	                Log.d(tag,"data is null");  
+//	            }  
+//	          
+//	    }
 	        
 	}  
 	

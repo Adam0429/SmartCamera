@@ -26,6 +26,18 @@ public class DataHelper {
 			float smile = Float.parseFloat(s1);
 			if(smile>threshold)
 				return "smiling";
+			else 
+				return "not smile";
+		case "gender":
+			if(result.contains("gender")){
+				if(result.contains("Male"))
+					return "Male";
+				else 
+					return "Female";
+			}
+			else 
+				return "Unknown gender";
+
 		}
 		return "";
 	}

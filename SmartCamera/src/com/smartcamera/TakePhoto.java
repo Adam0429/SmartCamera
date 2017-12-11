@@ -148,7 +148,7 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 			            	bm2 = ImageUtil.RotateBitmap(bmp, 90);
 			            String base64= ImageUtil.bitmapToBase64(bm2);
 	       				String detectresult = new detect(base64).run(); 
-	       				Log.i("detect", detectresult);
+//	       				Log.i("detect", detectresult);
 	       				TextView textView = (TextView) findViewById(com.smartcemera.R.id.textView1);
 	       				textView.setText(detectresult);
 	       				String analyzeresult = "";
@@ -157,17 +157,33 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
        						analyzeresult = new analyze(token).run();
        						textView.setText(analyzeresult);
 	       				}
-	       				Log.i("!!!!!!!!!",mode);
+	       				
+	       				Log.i("mode!!!!!!", mode);
+
 	       				if(mode.equals("smile")){
-	       					if(DataHelper.SplitResult(analyzeresult, "smile") != ""){
+	       					if(DataHelper.SplitResult(analyzeresult, "smile").equals("smiling")){
 	       						shuttle(surfaceView);//不知道传这个view行不行，因为shuttle中必须有view	
 	       					}
 	       				}
+
 	       				if(mode.equals("pre")){
-	       					String emotion = getIntent().getStringExtra("emotion");
+
+	       					String emotion = getIntent().getStringExtra("Emotion");
 	       					String gender = getIntent().getStringExtra("Gender");
 	       					String beau = getIntent().getStringExtra("beau");
-
+	       					String nowemotion = DataHelper.emotion(analyzeresult);
+	       					String nowgender = DataHelper.SplitResult(analyzeresult,"gender");
+	       					
+//	       					if(beau.equals("1")){
+//	       						if(DataHelper.emotion(analyzeresult).equals(emotion) && gender.equals(DataHelper.emotion("gender"))){
+//	       							shuttle(surfaceView);//不知道传这个view行不行，因为shuttle中必须有view	
+//	       						}
+//	       					}
+//	       					else {
+	       						if(gender.equals(nowgender)&&emotion.equals(nowemotion)){
+	       							shuttle(surfaceView);
+	       						}
+//	       					}
 	       				}
 			        }  }catch (Exception e) {
 						// TODO: handle exception

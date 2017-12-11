@@ -47,8 +47,8 @@ public final class R {
         public static final int radioGroup1=0x7f09000a;
         public static final int scrollView1=0x7f09000b;
         public static final int spinner2=0x7f09000f;
-        public static final int textView1=0x7f090003;
-        public static final int textView2=0x7f090004;
+        public static final int textView1=0x7f090004;
+        public static final int textView2=0x7f090003;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
