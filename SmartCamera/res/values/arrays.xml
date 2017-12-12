@@ -2,7 +2,7 @@
 <resources>
     <string-array name="emotionarr">
    		<item>sadness</item>  
-  	 	<item>neural</item>  
+  	 	<item>neutral</item>  
     	<item>disgust</item>  
     	<item>anger</item>
     	<item>fear</item>

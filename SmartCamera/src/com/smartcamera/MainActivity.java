@@ -49,10 +49,10 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import api.analyze;
 import api.detect;
 import helper.DataHelper;
-import helper.FileUtil;
-import helper.ImageUtil;
+import helper.FileHelper;
+import helper.ImageHelper;
 
-public class MainActivity extends Activity {//加一个后台上传的代码
+public class MainActivity extends Activity {//加一个后台上传的代码 
 	
 
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,19 +64,19 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 	    TextView textView2 = (TextView)findViewById(R.id.textView2);
 
 		if(getIntent().getStringExtra("path") != null){	    
-	    	 File file = new File(FileUtil.initPath()+"/"+getIntent().getStringExtra("path")+".jpg");
-             if (file.exists()) {//如果太快进入的话,图还没存好，就要显示，会出错
-            	File file1 = new File(FileUtil.initPath());
+	    	 File file = new File(FileHelper.initPath()+"/"+getIntent().getStringExtra("path")+".jpg");
+             if (file.exists()) {//如果太快进入的话,图还没存好，就要显示，会出错 //if enter too fast , the picture have not saved finished ,it will error
+            	File file1 = new File(FileHelper.initPath());
          		File[] files = file.listFiles();
 
 //            	int i = Integer.parseInt(getIntent().getStringExtra("path"));
-        		Toast.makeText(this,FileUtil.initPath()+"/"+getIntent().getStringExtra("path")+".jpg", Toast.LENGTH_SHORT).show();   
-            	Bitmap bm1 = BitmapFactory.decodeFile(FileUtil.initPath()+"/"+getIntent().getStringExtra("path")+".jpg");
+        		Toast.makeText(this,FileHelper.initPath()+"/"+getIntent().getStringExtra("path")+".jpg", Toast.LENGTH_SHORT).show();   
+            	Bitmap bm1 = BitmapFactory.decodeFile(FileHelper.initPath()+"/"+getIntent().getStringExtra("path")+".jpg");
         		Bitmap bm2;
             	if(getIntent().getStringExtra("camera").equals("1"))
-            		bm2 = ImageUtil.RotateBitmap(bm1, -90);
+            		bm2 = ImageHelper.RotateBitmap(bm1, -90);
             	else
-            		bm2 = ImageUtil.RotateBitmap(bm1, 90);
+            		bm2 = ImageHelper.RotateBitmap(bm1, 90);
 
  	    		mIV.setImageBitmap(bm2); 
             
@@ -87,9 +87,9 @@ public class MainActivity extends Activity {//加一个后台上传的代码
     				textView.setText(DataHelper.SplitResult(analyzeresult, "all"));
     			}
     			else if(detectresult.contains("INVALID_IMAGE_SIZE")||detectresult.contains("IMAGE_FILE_TOO_LARGE"))
-    				textView.setText("图片大小不合适,请控制在2M以内");
+    				textView.setText("Picture should smaller than 2M");
     			else{
-    				textView2.setText("错误报告:");
+    				textView2.setText("error:");
     				textView2.append(detectresult);
     			}
   
@@ -113,8 +113,8 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 	}
 	
 	public void upload(View view){
-	      Intent intent = new Intent(Intent.ACTION_GET_CONTENT).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);//销毁前一个intent防止过多的界面  
-	      intent.setType("image/*");//设置类型
+	      Intent intent = new Intent(Intent.ACTION_GET_CONTENT).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);//销毁前一个intent防止过多的界面  // prevent too much frame
+	      intent.setType("image/*");//设置类型 //set type
           intent.addCategory(Intent.CATEGORY_OPENABLE);  
           startActivityForResult(intent,1);  
 	}
@@ -127,7 +127,7 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 		intent.putExtra("para", 0);
 //		startActivity(intent);
 		
-		LayoutInflater inflater = getLayoutInflater();//将xml转换成一个View对象，用于动态的创建布局
+		LayoutInflater inflater = getLayoutInflater();//将xml转换成一个View对象，用于动态的创建布局//translate to view
 		View layout = inflater.inflate(R.layout.insert_dialog,null);
 
 		new AlertDialog.Builder(this).setTitle("Choose Preference").setView(layout)
@@ -284,10 +284,10 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 	    				textView.setText(DataHelper.SplitResult(new analyze(token).run(),"all"));
 	    			}
 	    			else if(detectresult.contains("INVALID_IMAGE_SIZE")||detectresult.contains("IMAGE_FILE_TOO_LARGE"))
-	    				textView.setText("图片大小不合适,请控制在2M以内");
+	    				textView.setText("picture should smaller than 2M");
 	    			else{
 	    				textView.setText("");
-	    				textView2.setText("错误报告:");
+	    				textView2.setText("error:");
 	    				textView2.append(detectresult);
 	    			}
 	    			mIV.setImageBitmap(bm); 
@@ -303,7 +303,7 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 	    			//Toast.makeText(this, , Toast.LENGTH_SHORT).show();
         
 	    		} catch (IOException e) {  
-	    			Toast.makeText(this, "读取图片error,请从图库中选择不然会报错", Toast.LENGTH_SHORT).show();   	
+	    			Toast.makeText(this, "read picture error,choose from album", Toast.LENGTH_SHORT).show();   	
 	    		}  
 	    	}       
 	    }
@@ -339,8 +339,7 @@ public class MainActivity extends Activity {//加一个后台上传的代码
 	            baos.close();  
 	  
 	            byte[] bitmapBytes = baos.toByteArray();  
-	            result = Base64.encodeToString(bitmapBytes,Base64.NO_WRAP);  //
-	           
+	            result = Base64.encodeToString(bitmapBytes,Base64.NO_WRAP); 	           
 	        }  
 	        else 
 	        	textView2.append("空的bitmap");

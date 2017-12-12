@@ -8,10 +8,10 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-
+//some reference
 public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Callback{//这个类管理显示camera画面的功能,仅仅重写了一个类功能
 	//SurfaceHolder.Callback是用来预览摄像头视频
-	private static final String TAG = "yanzi";
+	private static final String TAG = "camerasurfaceview";
 	CameraInterface mCameraInterface;
 	Context mContext;
 	SurfaceHolder mSurfaceHolder;
@@ -26,23 +26,18 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
 		mSurfaceHolder.addCallback(this);
 	}
 
-	@Override
+	
 	public void surfaceCreated(SurfaceHolder holder) {
-		// TODO Auto-generated method stub
-		Log.i(TAG, "surfaceCreated...");
+
 	}
 
-	@Override
+	
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
-		// TODO Auto-generated method stub
-		Log.i(TAG, "surfaceChanged...");
+
 	}
 
-	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		// TODO Auto-generated method stub
-		Log.i(TAG, "surfaceDestroyed...");
 		CameraInterface.getInstance().doStopCamera();
 	}
 	public SurfaceHolder getSurfaceHolder(){

@@ -54,7 +54,7 @@ public class DataHelper {
 			return "";
 	}
 	
-	public static String emotion(String result){//演示的时候记得说我在算法上下了功夫
+	public static String emotion(String result){
 		String emotion = "";
 		float max = 0;
 		int index = -1;

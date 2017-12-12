@@ -24,6 +24,7 @@ import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.webkit.WebSettings.LayoutAlgorithm;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,11 +34,11 @@ import helper.CameraInterface;
 import helper.CameraInterface.CamOpenOverCallback;
 import helper.CameraSurfaceView;
 import helper.DataHelper;
-import helper.DisplayUtil;
-import helper.FileUtil;
-import helper.ImageUtil;
+import helper.DisplayHelper;
+import helper.FileHelper;
+import helper.ImageHelper;
 
-public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCallback{//继承了callback接口,说明这个类会被调用callback接口里的方法
+public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCallback{//继承了callback接口,说明这个类会被调用callback接口里的方法//use callback interface
 	private static final String TAG = "takephoto";
 	CameraSurfaceView surfaceView = null;
 	CameraInterface cameraInterface;
@@ -45,8 +46,7 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 	float previewRate = -1f;
 	String mode;
 	int cameramode;
-	boolean check = true;		//用来控制线程的,我发现让线程interrupt不能达到我的目的
-	@Override
+	boolean check = true;		//用来控制线程的,我发现让线程interrupt不能达到我的目的//use to control thread
 	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -93,16 +93,16 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 	}
 	private void initViewParams(){
 		LayoutParams params = surfaceView.getLayoutParams();
-		Point p = DisplayUtil.getScreenMetrics(this);
+		Point p = DisplayHelper.getScreenMetrics(this);
 		params.width = p.x;
 		params.height = p.y;
-		previewRate = DisplayUtil.getScreenRate(this); //默认全屏的比例预览
+		previewRate = DisplayHelper.getScreenRate(this); //默认全屏的比例预览
 		surfaceView.setLayoutParams(params);
 
 		//手动设置拍照ImageButton的大小为120dip×120dip,原图片大小是64×64
 		LayoutParams p2 = shutterBtn.getLayoutParams();
-		p2.width = DisplayUtil.dip2px(this, 80);
-		p2.height = DisplayUtil.dip2px(this, 80);;		
+		p2.width = DisplayHelper.dip2px(this, 80);
+		p2.height = DisplayHelper.dip2px(this, 80);;		
 		shutterBtn.setLayoutParams(p2);	
 
 	}
@@ -115,7 +115,7 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 	public void shuttle(View v){
 		check = false;		//停止预览线程
 		CameraInterface.getInstance().doTakePicture();
-		int path = FileUtil.DirNumeber(FileUtil.initPath());	
+		int path = FileHelper.DirNumeber(FileHelper.initPath());	
 		Intent intent = new Intent(this,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);			
 		intent.putExtra("path", Integer.toString(path));	
 		intent.putExtra("camera", Integer.toString(cameramode));	
@@ -132,6 +132,7 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 	public void onPreviewFrame(byte[] data, Camera arg1) {//这个函数里的data就是实时预览帧视频。一旦程序调用PreviewCallback接口，就会自动调用onPreviewFrame这个函数。
 		//如果Activity继承了PreviewCallback这个接口，只需继承Camera.setOneShotPreviewCallback(this);就可以了。程序会自动调用主类Activity里的onPreviewFrame函数
 		//处理数据写在这里,拍照的动作也写这里	     
+		//this callback method is used to get preview frame
 		if(data != null){
 			 Size size = CameraInterface.getInstance().mCamera.getParameters().getPreviewSize();          
 			    try{  
@@ -143,10 +144,10 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 			            stream.close(); 
 			            Bitmap bm2;
 			            if(getIntent().getIntExtra("para",1) == 1)
-			            	bm2 = ImageUtil.RotateBitmap(bmp, -90);	//得转成正脸才能被api识别
+			            	bm2 = ImageHelper.RotateBitmap(bmp, -90);	//得转成正脸才能被api识别//api just can use Andy 
 			            else 
-			            	bm2 = ImageUtil.RotateBitmap(bmp, 90);
-			            String base64= ImageUtil.bitmapToBase64(bm2);
+			            	bm2 = ImageHelper.RotateBitmap(bmp, 90);
+			            String base64= ImageHelper.bitmapToBase64(bm2);
 	       				String detectresult = new detect(base64).run(); 
 //	       				Log.i("detect", detectresult);
 	       				TextView textView = (TextView) findViewById(com.smartcemera.R.id.textView1);
@@ -156,13 +157,15 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 	       					String token = detectresult.split("face_token\": \"")[1].split("\"")[0];
        						analyzeresult = new analyze(token).run();
        						textView.setText(analyzeresult);
+       						Toast.makeText(this, DataHelper.emotion(analyzeresult),Toast.LENGTH_SHORT).show();;
+
 	       				}
 	       				
 	       				Log.i("mode!!!!!!", mode);
 
 	       				if(mode.equals("smile")){
 	       					if(DataHelper.SplitResult(analyzeresult, "smile").equals("smiling")){
-	       						shuttle(surfaceView);//不知道传这个view行不行，因为shuttle中必须有view	
+	       						shuttle(surfaceView);
 	       					}
 	       				}
 
@@ -172,19 +175,22 @@ public class TakePhoto extends Activity implements CamOpenOverCallback,PreviewCa
 	       					String gender = getIntent().getStringExtra("Gender");
 	       					String beau = getIntent().getStringExtra("beau");
 	       					String nowemotion = DataHelper.emotion(analyzeresult);
-	       					String nowgender = DataHelper.SplitResult(analyzeresult,"gender");
+	       					String nowgender = DataHelper.SplitResult(analyzeresult, "gender");
+	       					Log.i("emotion", emotion);
+	       					Log.i("noewemotion", nowemotion);
+	       					Log.i("gender", gender);
+	       					Log.i("nowgender",nowgender);
        						float beauscore = Float.parseFloat(DataHelper.SplitResult(analyzeresult,"beau"));
-
-	       					if(beau.equals("1")){
-	       						if(DataHelper.emotion(analyzeresult).equals(emotion) && gender.equals(DataHelper.emotion("gender"))&&beauscore>70){
-	       							shuttle(surfaceView);//不知道传这个view行不行，因为shuttle中必须有view	
-	       						}
-	       					}
-	       					else {
+//	       					if(beau.equals("1")){
+//	       						if(DataHelper.emotion(analyzeresult).equals(emotion) && gender.equals(DataHelper.emotion("gender"))&&beauscore>70){
+//	       							shuttle(surfaceView);//不知道传这个view行不行，因为shuttle中必须有view	
+//	       						}
+//	       					}
+//	       					else {
 	       						if(gender.equals(nowgender)&&emotion.equals(nowemotion)){
 	       							shuttle(surfaceView);
 	       						}
-	       					}
+//	       					}
 	       				}
 			        }  }catch (Exception e) {
 				}
